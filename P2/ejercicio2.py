@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import math
 
 #------------------ Funciones de la sección anterior -------------------------------------#
 
@@ -114,7 +115,7 @@ def formato_datos(datos):
         return x
 
 #Dibuja los datos de la nube de puntos
-def grafica(datos, im_datos, w, titulo):
+def grafica(datos, im_datos, w, titulo, rango):
         pos_x = [] #Coordenada X de los datos con etiqueta 1
         pos_y = [] #Coordenada Y de los datos con etiqueta 1
         neg_x = [] #Coordenada X de los datos con etiqueta -1
@@ -135,7 +136,7 @@ def grafica(datos, im_datos, w, titulo):
         plt.scatter(pos_x, pos_y, c='red', label = 'Puntos con etiqueta positiva')
         plt.scatter(neg_x, neg_y, c='b', label = 'Puntos con etiqueta negativa')
 
-        X = np.linspace(-60, 60, 100, endpoint=True)
+        X = np.linspace(rango[0], rango[1], 100, endpoint=True)
         Y = -(w[0] + w[1]*X)/w[2]
         plt.plot(X, Y, color="black")
 
@@ -154,7 +155,7 @@ print ('MODELOS LINEALES\n')
 print ('Ejercicio 1\n')
 
 #a)---------------------------------------------------------
-
+'''
 #Datos de la nube de puntos con simula_unif
 datos_unif = simula_unif(50, 2, [-50, 50])
 #Calculo los parametros de la recta
@@ -174,7 +175,7 @@ print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
 
 #Grafica con los resultados obtenidos
-grafica(datos_unif, im_datos, w, 'PLA con vini = 0')
+grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50])
 
 #Inicializo con vector aleatorio
 for i in range(0, 10):
@@ -200,7 +201,7 @@ print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
 print('La media de las iteraciones necesarias para converger es: ' + str(iters))
 
 #Grafica con los resultados obtenidos en la última iteración
-grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio')
+grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50])
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -221,7 +222,7 @@ print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
 
 #Grafica con los resultados obtenidos
-grafica(datos_unif, im_datos, w, 'PLA con vini = 0')
+grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50])
 
 #Inicializo con vector aleatorio
 for i in range(0, 10):
@@ -247,11 +248,14 @@ print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
 print('La media de las iteraciones necesarias para converger es: ' + str(iters))
 
 #Grafica con los resultados obtenidos en la última iteración
-grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio')
-
+grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50])
+'''
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #------------------------------Ejercicio 2 -------------------------------------#
+
+#a)-------------------------------------------------
+
 #Asigno la etiqueta segun el signo de la funcion f(x,y) = y-ax-b
 def asigno_etiquetas_prob(datos, a, b):
 
@@ -267,14 +271,76 @@ def asigno_etiquetas_prob(datos, a, b):
 
         return datos, im_datos
 
-def
+#Función sigmoide
+def sigma(x):
+    return np.exp(x)/(np.exp(x)+1)
 
 
+# Regresion Logistica usando Gradiente Descendente Estocastico
+def rl_sgd(x, y, lr, max_iters, tam_minibatch):
 
+        #Inicializa el punto inicial a (0,0)
+        w = np.array([])
+        for i in range(0, len(x[0])):
+                w = np.append(w, 0.0)
+
+        w = np.array(w, np.float64)
+
+        w_old = math.inf
+
+        for l in range(0, max_iters): #Secuencias distintas de minibatch
+            #Paro cuando ||w^t - w^(t-1)||<1
+            if np.linalg.norm(w-w_old)>=0.01:
+                #Inicializo los minibatch
+                minibatch = []
+
+                #Barajo los datos del vector x y las etiquetas en el mismo orden
+                c = list(zip(x, y))
+                random.shuffle(c)
+                x, y = zip(*c)
+
+                #Creo el minibatch (cojo los primeros datos del vector x)
+                for i in range(0, tam_minibatch):
+                        minibatch.append(x[i])
+
+                #Algoritmo de Gradiente descendente
+
+                #Inicializo suma (que represena la sumatoria del algoritmo) a 0
+                suma = np.array([])
+                for i in range(0, len(x[0])):
+                        suma = np.append(suma, 0.0)
+
+                suma = np.array(suma, np.float64)
+
+                #Calculo la derivada de Ein, que es la sumatoria de x_i*(<x_i, w> - y_i), donde <,> denota producto escalar
+                for k in range(0,tam_minibatch):
+                        #print(k)
+                        #print("x: " + str(x[k]))
+                        suma = suma - y[k]*minibatch[k]*sigma(-np.dot(w, minibatch[k])*y[k])
+
+                #Actualiazción de w según el algoritmo
+                w_old = w
+                w = w - lr*suma
+                #print(suma)
+                #print(w)
+            else:
+                 break   
+                        
+        return w
 
 #Datos de la nube de puntos con simula_unif
 datos_unif = simula_unif(100, 2, [0, 2])
+print(datos_unif)
 #Calculo los parametros de la recta que hace de frontera
 a, b = simula_recta([0, 2])
 #Devuelvo los datos y sus etiquetas (0/1)
 datos_unif, im_datos = asigno_etiquetas_prob(datos_unif, a, b)
+#Pongo los datos en el formato correcto para el algoritmo SGD
+datos = formato_datos(datos_unif)
+print(len(datos))
+
+#Ejecuto la Rl con SGD
+w = rl_sgd(datos, im_datos, 0.01, 100, 64)
+print(w)
+
+grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2])
