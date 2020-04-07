@@ -68,7 +68,9 @@ datos_unif = simula_unif(50, 2, [-50, 50])
 datos_gauss = simula_gaus(50, 2, [5, 7])
 
 #Muestra los datos
+print ('Gráfica con nube de puntos uniforme')
 muestra_datos(datos_unif, 'Nube de puntos uniforme')
+print ('Gráfica con nube de puntos siguiendo una normal')
 muestra_datos(datos_gauss, 'Nube de puntos normal')
 
 input("\n--- Pulsar tecla para continuar ---\n")
@@ -106,9 +108,11 @@ def grafica(datos, im_datos, a, b, titulo):
         #Relleno los vectores de coordenadas
         for i in range(len(datos)):
                 if im_datos[i] == 1:
+                        #Vector de datos con etiquetas positivas
                         pos_x.append(datos[i][0])
                         pos_y.append(datos[i][1])
                 else:
+                        #Vector de datos con etiquetas positivas
                         neg_x.append(datos[i][0])
                         neg_y.append(datos[i][1])
         
@@ -140,6 +144,7 @@ a, b = simula_recta([-50, 50])
 #Devuelvo los datos con sus etiquetas segun la función signo(y-ax-b)
 datos_unif, im_datos = asigno_etiquetas(datos_unif, a, b)
 #Dibujo la gráfica
+print('Gráfica con datos etiquetados sin ruido')
 grafica(datos_unif, im_datos, a, b, 'Datos con sus etiquetas (sin ruido)')
 
 #b)---------------------------------------------------------
@@ -191,6 +196,7 @@ def asigno_etiquetas_ruido(datos, a, b):
 #Devuelvo los datos y sus etiquetas con ruido
 datos_unif, im_datos = asigno_etiquetas_ruido(datos_unif, a, b)
 #Dibujo la gráfica
+print('Gráfica con datos etiquetados con ruido')
 grafica(datos_unif, im_datos, a, b, 'Datos con sus etiquetas (con ruido)')
 
 
@@ -198,20 +204,21 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 #------------------------------Ejercicio 3 -------------------------------------#
 
-'''
+print ('Ejercicio 3\n')
+
 #Función frontera del clasificador
 def f1(x, y):
-        return (x-10)**2 + (x)
+        return (x-10)**2 + (y-20)**2 - 400
 
 #Función frontera del clasificador
 def f2(x, y):
-        return np.sign(x2 - a*x1 - b)
+        return 0.5*(x+10)**2 + (y-20)**2 - 400
 
 #Función frontera del clasificador
 def f3(x, y):
-        return np.sign(x2 - a*x1 - b)
+        return 0.5*(x-10)**2 - (y+20)**2 - 400
 
 #Función frontera del clasificador
 def f4(x, y):
-        return np.sign(x2 - a*x1 - b)
-'''
+        return y - 20*x**2 - 5*x +3
+
