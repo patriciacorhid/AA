@@ -143,7 +143,7 @@ def grafica(datos, im_datos, w, titulo, rango):
         #Añado el título 
         plt.title(titulo)
         #Añado la leyenda
-        plt.legend(loc=2)
+        plt.legend(loc=4)
         #Ponemos nombre a los ejes
         plt.xlabel('Coordenada x')
         plt.ylabel('Coordenada y')
@@ -155,7 +155,7 @@ print ('MODELOS LINEALES\n')
 print ('Ejercicio 1\n')
 
 #a)---------------------------------------------------------
-'''
+
 #Datos de la nube de puntos con simula_unif
 datos_unif = simula_unif(50, 2, [-50, 50])
 #Calculo los parametros de la recta
@@ -249,27 +249,14 @@ print('La media de las iteraciones necesarias para converger es: ' + str(iters))
 
 #Grafica con los resultados obtenidos en la última iteración
 grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50])
-'''
+
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #------------------------------Ejercicio 2 -------------------------------------#
 
 #a)-------------------------------------------------
 
-#Asigno la etiqueta segun el signo de la funcion f(x,y) = y-ax-b
-def asigno_etiquetas_prob(datos, a, b):
-
-        #Vector con etiquetas de los datos
-        im_datos = []
-
-        #Meto las etiquetas en el vector im_datos
-        for i in range(0, len(datos)):
-           if f(a, b, datos[i][0], datos[i][1]) != 1:
-               im_datos.append(0)
-           else:
-               im_datos.append(1)
-
-        return datos, im_datos
+print ('Ejercicio 2\n')
 
 #Función sigmoide
 def sigma(x):
@@ -285,16 +272,17 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                 w = np.append(w, 0.0)
 
         w = np.array(w, np.float64)
-
-        w_old = math.inf
+        #Inicializo w_old a infinito
+        w_old = np.array([1,1,1])
 
         for l in range(0, max_iters): #Secuencias distintas de minibatch
-            #Paro cuando ||w^t - w^(t-1)||<1
+            #Paro cuando ||w^t - w^(t-1)||<0.01
             if np.linalg.norm(w-w_old)>=0.01:
                 #Inicializo los minibatch
                 minibatch = []
 
                 #Barajo los datos del vector x y las etiquetas en el mismo orden
+                
                 c = list(zip(x, y))
                 random.shuffle(c)
                 x, y = zip(*c)
@@ -302,9 +290,9 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                 #Creo el minibatch (cojo los primeros datos del vector x)
                 for i in range(0, tam_minibatch):
                         minibatch.append(x[i])
+                #print('minibatch: ' + str(minibatch))
 
                 #Algoritmo de Gradiente descendente
-
                 #Inicializo suma (que represena la sumatoria del algoritmo) a 0
                 suma = np.array([])
                 for i in range(0, len(x[0])):
@@ -312,35 +300,40 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
 
                 suma = np.array(suma, np.float64)
 
-                #Calculo la derivada de Ein, que es la sumatoria de x_i*(<x_i, w> - y_i), donde <,> denota producto escalar
+                #Calculo la derivada de Ein, que es una sumatoria
                 for k in range(0,tam_minibatch):
                         #print(k)
                         #print("x: " + str(x[k]))
+                        #print('valores: ' + str(y[k]*minibatch[k]*sigma(-np.dot(w, minibatch[k])*y[k])))
                         suma = suma - y[k]*minibatch[k]*sigma(-np.dot(w, minibatch[k])*y[k])
 
                 #Actualiazción de w según el algoritmo
                 w_old = w
                 w = w - lr*suma
-                #print(suma)
-                #print(w)
+                #print('suma: ' + str(suma))
+                #print('w_old: '+str(w_old))
+                #print('w: ' + str(w))
+                
             else:
                  break   
                         
-        return w
+        return w, l
 
 #Datos de la nube de puntos con simula_unif
 datos_unif = simula_unif(100, 2, [0, 2])
-print(datos_unif)
 #Calculo los parametros de la recta que hace de frontera
 a, b = simula_recta([0, 2])
+print('a: ' + str(a) + '    b: ' + str(b))
 #Devuelvo los datos y sus etiquetas (0/1)
-datos_unif, im_datos = asigno_etiquetas_prob(datos_unif, a, b)
+datos_unif, im_datos = asigno_etiquetas(datos_unif, a, b)
 #Pongo los datos en el formato correcto para el algoritmo SGD
 datos = formato_datos(datos_unif)
-print(len(datos))
+y = np.array(im_datos)
 
 #Ejecuto la Rl con SGD
-w = rl_sgd(datos, im_datos, 0.01, 100, 64)
+w, l = rl_sgd(datos, y, 0.01, 100, 64)
 print(w)
+print(l)
 
 grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2])
+#grafica(datos_unif, im_datos, [-0.12418148, -0.34143929,  0.18460535], 'Regresion logistica', [0, 2])
