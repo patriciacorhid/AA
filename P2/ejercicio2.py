@@ -254,9 +254,9 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 #------------------------------Ejercicio 2 -------------------------------------#
 
-#a)-------------------------------------------------
-
 print ('Ejercicio 2\n')
+
+#a)-------------------------------------------------
 
 #Función sigmoide
 def sigma(x):
@@ -323,6 +323,7 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
 datos_unif = simula_unif(100, 2, [0, 2])
 #Calculo los parametros de la recta que hace de frontera
 a, b = simula_recta([0, 2])
+print('Los coeficientes de la recta real son:')
 print('a: ' + str(a) + '    b: ' + str(b))
 #Devuelvo los datos y sus etiquetas (0/1)
 datos_unif, im_datos = asigno_etiquetas(datos_unif, a, b)
@@ -331,9 +332,28 @@ datos = formato_datos(datos_unif)
 y = np.array(im_datos)
 
 #Ejecuto la Rl con SGD
-w, l = rl_sgd(datos, y, 0.01, 100, 64)
-print(w)
-print(l)
+w, iters = rl_sgd(datos, y, 0.01, 100, 64)
+print('Los pesos obtenidos son: ' + str(w))
+print('Fueron necesarias ' + str(iters) + ' iteraciones.')
 
 grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2])
-#grafica(datos_unif, im_datos, [-0.12418148, -0.34143929,  0.18460535], 'Regresion logistica', [0, 2])
+
+#b)-----------------------------------------------------------------
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print('La función obtenida es g(x) = sigma(np.dot(w,x))')
+print('Los pesos obtenidos son: w = ' + str(w))
+
+datos_test = simula_unif(1000, 2, [0, 2])
+datos_test, im_test = asigno_etiquetas(datos_unif, a, b)
+datos_test = formato_datos(datos_test)
+
+def Eout(x, y, w):
+        suma = 0
+        for i in range(0, len(x)):
+                suma = suma + np.log(1 + np.exp(-y[i]*np.dot(w, x[i])))
+        return suma/len(x)
+
+e_out = Eout(datos_test, im_test, w)
+print('El error Eout es : ' + str(e_out))
