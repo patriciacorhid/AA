@@ -82,6 +82,7 @@ def asigno_etiquetas_ruido(datos, a, b):
 
 #------------------------------Ejercicio 1 -------------------------------------#
 
+#Algoritmo PLA
 def ajusta_PLA(datos, label, max_iter, vini):
     w = vini #Vector con pesos del hiperplano
     iters = 0 #Iteraciones necesarias para converger
