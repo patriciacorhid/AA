@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
-import random
 import math
+import random
 
 #------------------ Funciones de la sección anterior -------------------------------------#
 
@@ -116,7 +116,7 @@ def formato_datos(datos):
         return x
 
 #Dibuja los datos de la nube de puntos
-def grafica(datos, im_datos, w, titulo, rango):
+def grafica(datos, im_datos, w, titulo, rango, var):
         pos_x = [] #Coordenada X de los datos con etiqueta 1
         pos_y = [] #Coordenada Y de los datos con etiqueta 1
         neg_x = [] #Coordenada X de los datos con etiqueta -1
@@ -141,6 +141,10 @@ def grafica(datos, im_datos, w, titulo, rango):
         Y = -(w[0] + w[1]*X)/w[2]
         plt.plot(X, Y, color="black")
 
+        #Fijo los ejes
+        axes = plt.gca()
+        axes.set_xlim([rango[0]-var, rango[1]+var])
+        axes.set_ylim([rango[0]-var, rango[1]+var])
         #Añado el título 
         plt.title(titulo)
         #Añado la leyenda
@@ -157,8 +161,11 @@ print ('Ejercicio 1\n')
 
 #a)---------------------------------------------------------
 
+# Fijamos la semilla
+np.random.seed(1)
+
 #Datos de la nube de puntos con simula_unif
-datos_unif = simula_unif(50, 2, [-50, 50])
+datos_unif = simula_unif(100, 2, [-50, 50])
 #Calculo los parametros de la recta
 a, b = simula_recta([-50, 50])
 #Devuelvo los datos y sus etiquetas sin ruido
@@ -170,13 +177,13 @@ print('\n ETIQUETAS SIN RUIDO \n')
 
 #Inicializo con vector 0
 w = np.zeros(3, np.float64)
-w, iters = ajusta_PLA(datos, im_datos, 100, w)
+w, iters = ajusta_PLA(datos, im_datos, 500, w)
 print('Vector inicial: vector cero')
 print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
 
 #Grafica con los resultados obtenidos
-grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50])
+grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50], 10)
 
 #Inicializo con vector aleatorio
 for i in range(0, 10):
@@ -186,12 +193,12 @@ for i in range(0, 10):
     w = []
     for i in range(0,3):
         #Le meto 3 valores aleatorios ente 0 y 1
-        w.append(random.random())
+        w.append(np.random.random())
     #Convierto w en un array de numpy
     w = np.array(w, np.float64)
     
     #Ejecuto el PLA
-    w, iters = ajusta_PLA(datos, im_datos, 100, w)
+    w, iters = ajusta_PLA(datos, im_datos, 500, w)
     sum_iters += iters
 
 #Media de las iteraciones necesarias para converger
@@ -202,7 +209,7 @@ print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
 print('La media de las iteraciones necesarias para converger es: ' + str(iters))
 
 #Grafica con los resultados obtenidos en la última iteración
-grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50])
+grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50], 10)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -217,13 +224,13 @@ datos = formato_datos(datos_unif)
 
 #Inicializo con vector 0
 w = np.zeros(3, np.float64)
-w, iters = ajusta_PLA(datos, im_datos, 100, w)
+w, iters = ajusta_PLA(datos, im_datos, 500, w)
 print('Vector inicial: vector cero')
 print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
 
 #Grafica con los resultados obtenidos
-grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50])
+grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50], 10)
 
 #Inicializo con vector aleatorio
 for i in range(0, 10):
@@ -233,12 +240,12 @@ for i in range(0, 10):
     w = []
     for i in range(0,3):
         #Le meto 3 valores aleatorios ente 0 y 1
-        w.append(random.random())
+        w.append(np.random.random())
     #Convierto w en un array de numpy
     w = np.array(w, np.float64)
     
     #Ejecuto el PLA
-    w, iters = ajusta_PLA(datos, im_datos, 100, w)
+    w, iters = ajusta_PLA(datos, im_datos, 500, w)
     sum_iters += iters
 
 #Media de las iteraciones necesarias para converger
@@ -249,7 +256,7 @@ print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
 print('La media de las iteraciones necesarias para converger es: ' + str(iters))
 
 #Grafica con los resultados obtenidos en la última iteración
-grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50])
+grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50], 10)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -273,7 +280,7 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                 w = np.append(w, 0.0)
 
         w = np.array(w, np.float64)
-        #Inicializo w_old a infinito
+        #Inicializo w_old a un valor con norma mayor que 0.01
         w_old = np.array([1,1,1])
 
         for l in range(0, max_iters): #Secuencias distintas de minibatch
@@ -283,7 +290,6 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                 minibatch = []
 
                 #Barajo los datos del vector x y las etiquetas en el mismo orden
-                
                 c = list(zip(x, y))
                 random.shuffle(c)
                 x, y = zip(*c)
@@ -333,11 +339,11 @@ datos = formato_datos(datos_unif)
 y = np.array(im_datos)
 
 #Ejecuto la Rl con SGD
-w, iters = rl_sgd(datos, y, 0.01, 100, 64)
+w, iters = rl_sgd(datos, y, 0.01, 100, 32)
 print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones.')
 
-grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2])
+grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2], 0.5)
 
 #b)-----------------------------------------------------------------
 
@@ -346,8 +352,9 @@ input("\n--- Pulsar tecla para continuar ---\n")
 print('La función obtenida es g(x) = sigma(np.dot(w,x))')
 print('Los pesos obtenidos son: w = ' + str(w))
 
+#Creo la muestra de datos test
 datos_test = simula_unif(1000, 2, [0, 2])
-datos_test, im_test = asigno_etiquetas(datos_unif, a, b)
+datos_test, im_test = asigno_etiquetas(datos_test, a, b)
 datos_test = formato_datos(datos_test)
 
 def Eout(x, y, w):
