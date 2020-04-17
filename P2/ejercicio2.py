@@ -326,6 +326,10 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                         
         return w, l
 
+
+# Fijamos la semilla
+np.random.seed(4)
+
 #Datos de la nube de puntos con simula_unif
 datos_unif = simula_unif(100, 2, [0, 2])
 #Calculo los parametros de la recta que hace de frontera
@@ -357,11 +361,13 @@ datos_test = simula_unif(1000, 2, [0, 2])
 datos_test, im_test = asigno_etiquetas(datos_test, a, b)
 datos_test = formato_datos(datos_test)
 
-def Eout(x, y, w):
+def Error(x, y, w):
         suma = 0
         for i in range(0, len(x)):
                 suma = suma + np.log(1 + np.exp(-y[i]*np.dot(w, x[i])))
         return suma/len(x)
 
-e_out = Eout(datos_test, im_test, w)
+e_in = Error(datos, im_datos, w)
+e_out = Error(datos_test, im_test, w)
+print('El error Ein es : ' + str(e_in))
 print('El error Eout es : ' + str(e_out))

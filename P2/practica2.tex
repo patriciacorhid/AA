@@ -105,11 +105,44 @@ En nuestro caso específico, podemos ver que las funciones más complejas elegid
 
 \section{MODELOS LINEALES}
 
-\subsection{Apartado a)}
+\subsection{Algoritmo Perceptron}
 
-Programé la función \texttt{ajusta\_PLA} para calcular el hiperplano solución al problema de clasificación. En mi caso, la entrada \textit{datos} es una matriz donde cada fila es un item de la forma $x = [1 \hspace{3mm} coordenada\hspace{1mm}X \hspace{3mm} coordenada\hspace{1mm}Y]$, ya que meter las etiquetas en la matriz era redundante e innecesario al tener el vector de etiquetas \textit{label}.
+Programé la función \texttt{ajusta\_PLA} para calcular el hiperplano solución al problema de clasificación. En mi caso, la entrada \textit{datos} es una matriz donde cada fila es un item de la forma $x = [1 \hspace{3mm} coordenada\hspace{1mm}X \hspace{3mm} coordenada\hspace{1mm}Y]$, ya que meter las etiquetas en la matriz era redundante e innecesario al tener el vector de etiquetas \textit{label}.\\
 
-\subsection{Apartado b)}
+Ejecutamos el \textit{Algoritmo del PLA} con la muestra del apartado  2 usando etiquetas sin ruido. Las gráficas obtenidas (en el caso del vector aleatorio con el último de los 10 usados) son:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[Vector inicial cero]{\includegraphics[width=83mm]{imgs/PLA_sin_ruido_0}}
+  \subfigure[Vector inicial aleatorio]{\includegraphics[width=83mm]{imgs/PLA_sin_ruido_alea}}
+\end{figure}
+
+Usando como vector inicial el vector cero, el algoritmo converge en 444 iteraciones, obteniendo los pesos $w = [ -2129 \hspace{3mm} 44.85508745 \hspace{3mm} 17.01070298 ]$. Usando 10 vectores iniciales aleatorios, la media es de 17 iteraciones, y en la última iteración los pesos obtenidos son $w = [ -412.45365318 \hspace{3mm} 8.60651887 \hspace{3mm} 3.90172468]$. Como podemos observar, en mi caso el punto inicial influye bastante en el número de iteraciones.\\
+
+Ejecutando el \textit{Algoritmo del PLA} con la muestra del apartado  2 usando etiquetas con ruido obtenemos las siguientes gráficas:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[Vector inicial cero]{\includegraphics[width=83mm]{imgs/PLA_ruido_0}}
+  \subfigure[Vector inicial aleatorio]{\includegraphics[width=83mm]{imgs/PLA_ruido_alea}}
+\end{figure}
+
+En este caso los conjuntos no son separables, por lo que el \textit{Algoritmo del PLA} no converge nunca. Por tanto, éste ciclará indefinidamente y devolverá el resultado de la última ejecución realizada, que no tiene por qué ser el resultado con menor error de todos los obtenidos en las diferentes iteraciones. 
+
+\subsection{Regresión Logística}
+
+Usando la función \texttt{simula\_unif} creamos una muestra de 100 puntos uniformemente distribuidos en el cuadrado $[0,2] \times [0,2]$ ycon la función \texttt{simula\_recta} seleccionamos la línea del plano que será la frontera de la función $f(x)$. Se asignan etiquetas a los puntos del cuadrado con \texttt{asigno\_etiquetas}, dandole a los puntos por encima de la recta, que son aquellos con $f(x)=1$ la etiqueta $y=1$ y a los de debajo de la recta, que son aquellos con $f(x)=0$, etiqueta $y=-1$.
+
+Se implementó el algoritmo de \textit{Regresión Lineal} obteniendo el siguiente resultado:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[Regresion Logística]{\includegraphics[width=83mm]{imgs/rl}}
+\end{figure}
+
+La función obtenida con el algoritmo es $g(x)= \frac{1}{1}$, donde $w = [0.6206406 \hspace{3mm} -0.94098291 \hspace{3mm} 2.57813861]$.
+
+El error $E_{out} = 0.22651876695632325$ y el $E_{in} = 0.20481405394280924$.
 
 \section{BONUS}
 
