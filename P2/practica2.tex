@@ -133,23 +133,56 @@ En este caso los conjuntos no son separables, por lo que el \textit{Algoritmo de
 
 Usando la función \texttt{simula\_unif} creamos una muestra de 100 puntos uniformemente distribuidos en el cuadrado $[0,2] \times [0,2]$ ycon la función \texttt{simula\_recta} seleccionamos la línea del plano que será la frontera de la función $f(x)$. Se asignan etiquetas a los puntos del cuadrado con \texttt{asigno\_etiquetas}, dandole a los puntos por encima de la recta, que son aquellos con $f(x)=1$ la etiqueta $y=1$ y a los de debajo de la recta, que son aquellos con $f(x)=0$, etiqueta $y=-1$.
 
-Se implementó el algoritmo de \textit{Regresión Lineal} obteniendo el siguiente resultado:
+Se implementó el algoritmo de \textit{Regresión Logística} en la función \texttt{rl\_sgd} obteniendo el siguiente resultado:
 
 \begin{figure}[H]
   \centering
-  \subfigure[Regresion Logística]{\includegraphics[width=83mm]{imgs/rl}}
+  \subfigure[Regresión Logística]{\includegraphics[width=83mm]{imgs/rl}}
 \end{figure}
 
-La función obtenida con el algoritmo es $g(x)= \frac{1}{1}$, donde $w = [0.6206406 \hspace{3mm} -0.94098291 \hspace{3mm} 2.57813861]$.
+La función obtenida con el algoritmo es $g(x)= \frac{e^{w^Tx}}{1+e^{w^Tx}}$, donde $w = [0.6206406 \hspace{3mm} -0.94098291 \hspace{3mm} 2.57813861]$.
 
-El error $E_{out} = 0.22651876695632325$ y el $E_{in} = 0.20481405394280924$.
+El error  $E_{in} = 0.20481405394280924$. Se creó otra muestra de 1000 datos uniformemente distribuidos en el cuadrado con la función \texttt{simula\_unif} cuyo error es $E_{out} = 0.22651876695632325$. Como podemos ver el error $E_{out}$ difiere poco del error $E_{in}$, luego el ajuste es bueno.
 
 \section{BONUS}
 
 El problema es clasificar un conjunto de dígitos en dos clases diferentes, los cuatros y los ochos.
 El modelo usado es el siguiente:\\
 Los datos son de la forma $x_i = (1, x1, x2)$, donde $x1$ es la intensidad promedio y $x2$ es la simetría. Las etiquetas correspondientes son $y_i \in \{1, -1\}$. Inicialmente $y_i = 1$ si $x_i = 8$ y $y_i = -1$ si $x_i = 4$.
-Usando el algoritmo de \textit{Gradiente Descendente Estocástico} y \textit{Matriz Pseudoinversa} se obtiene $w$, que son los pesos de la función $h$ que aproxima a la función $f$ desconocida que a cada $x$ le asigna su etiqueta correspondiente. Tenemos pues que $h(x_i) = w_0 + w_1x1 + w_2x2$, con $w = (w_0, w_1, w_2)$.\\
+Usando el algoritmo de \textit{Regresion Lineal} y \textit{PLA-Pocket} se obtiene $w$, que son los pesos de la función $g$ que separa los datos de los dos conjuntos. Tenemos pues que $g(x1,x2) = w_0 + w_1x1 + w_2x2$, con $w = (w_0, w_1, w_2)$.\\
+
+Con el algoritmo de \textit{Regresion Lineal}, usando la matriz pseudoinversa, se consiguió $w = [-0.50676351 \hspace{3mm} 8.25119739  \hspace{3mm} 0.44464113]$. El resultado obtenido es:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[Regresión Lineal]{\includegraphics[width=110mm]{imgs/bonus_datos}}
+\end{figure}
+
+El error $E_{in}$ obtenido con esta recta es $0.22780569514237856$.\\
+
+Usando este resultado como vector inicial del algoritmo de \textit{PLA-Pocket} se consiguió $w = [-6.50676351 \hspace{3mm} 94.33278003  \hspace{3mm} 4.88432863]$. El resultado obtenido es:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[PLA-Pocket con datos de entrenamiento]{\includegraphics[width=110mm]{imgs/bonus_pla_datos}}
+\end{figure}
+
+El error $E_{in}$ obtenido con esta recta es $0.22529313232830822$, ligeramente menor que el obtenido con la recta de la regresión lineal.\\
+
+Usando esta recta para clasificar los datos test, el resultado es:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[PLA-Pocket con datos test]{\includegraphics[width=110mm]{imgs/bonus_pla_test}}
+\end{figure}
+
+El error $E_{test}$ obtenido es $0.2540983606557377$.\\
+
+Para calcular la cota sobre $E_{out}$ usamos la fórmula:
+$$E_{out}(h) \leq E_{in}(h) + \sqrt{\frac{1}{2N}log(\frac{2}{\delta})} $$
+donde N es el número de datos de la muestra y $\delta$ es la tolerancia, es decir, esta cota se cumple con, al menos, probabilidad $1-\delta$.
+
+En nuestro caso, usando $\delta = 0.05$, $N=1194$, tenemos que $E_{out}(h) \leq 0.22529313232830822 + \sqrt{\frac{1}{2*1194}log(\frac{2}{0.05})} = 0.2645965277$, que, efectivamente es mayor que el error $E_{test}$ obtenido.
 
 
 \end{document}

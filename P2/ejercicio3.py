@@ -137,6 +137,7 @@ def PLA_pocket(datos, label, max_iter, vini):
 
 # Lectura de los datos de entrenamiento
 x, y = readData("datos/X_train.npy", "datos/y_train.npy")
+#print('N = ' + str(len(x)))
 # Lectura de los datos para el test
 x_test, y_test = readData("datos/X_test.npy", "datos/y_test.npy")
 
