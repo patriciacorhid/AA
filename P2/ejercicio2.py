@@ -176,18 +176,33 @@ datos = formato_datos(datos_unif)
 print('\n ETIQUETAS SIN RUIDO \n')
 
 #Inicializo con vector 0
-w = np.zeros(3, np.float64)
-w, iters = ajusta_PLA(datos, im_datos, 500, w)
 print('Vector inicial: vector cero')
-print('Los pesos obtenidos son: ' + str(w))
-print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
+
+sum_iters = 0 #Suma de las iteraciones necesarias para converger
+
+for i in range(0,10):
+        w = np.zeros(3, np.float64)
+        w, iters = ajusta_PLA(datos, im_datos, 500, w)
+        sum_iters += iters
+        
+        #print('Los pesos obtenidos son: ' + str(w))
+        #print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
+
+#Media de las iteraciones necesarias para converger
+med_iters = sum_iters/10
+
+print('La media de las iteraciones necesarias para converger es: ' + str(med_iters))
+print('Los pesos son: ' + str(w))
 
 #Grafica con los resultados obtenidos
 grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50], 10)
 
 #Inicializo con vector aleatorio
+print('\nVector inicial: vector aleatorio')
+
+sum_iters = 0 #Suma de las iteraciones necesarias para converger
+
 for i in range(0, 10):
-    sum_iters = 0 #Suma de las iteraciones necesarias para converger
     
     #Inicializo el vector aleatorio
     w = []
@@ -201,12 +216,14 @@ for i in range(0, 10):
     w, iters = ajusta_PLA(datos, im_datos, 500, w)
     sum_iters += iters
 
+    #print('Los pesos obtenidos son: ' + str(w))
+    print('Las iteraciones necesarias para converger son: ' + str(iters))
+
 #Media de las iteraciones necesarias para converger
 med_iters = sum_iters/10
 
-print('\nVector inicial: vector aleatorio')
-print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
-print('La media de las iteraciones necesarias para converger es: ' + str(iters))
+print('La media de las iteraciones necesarias para converger es: ' + str(med_iters))
+print('Los pesos obtenidos en la última ejecución son: ' + str(w))
 
 #Grafica con los resultados obtenidos en la última iteración
 grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50], 10)
@@ -223,19 +240,34 @@ datos_unif, im_datos = asigno_etiquetas_ruido(datos_unif, a, b)
 datos = formato_datos(datos_unif)
 
 #Inicializo con vector 0
-w = np.zeros(3, np.float64)
-w, iters = ajusta_PLA(datos, im_datos, 500, w)
+
 print('Vector inicial: vector cero')
-print('Los pesos obtenidos son: ' + str(w))
-print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
+
+sum_iters = 0 #Suma de las iteraciones necesarias para converger
+
+for i in range(0,10):
+        w = np.zeros(3, np.float64)
+        w, iters = ajusta_PLA(datos, im_datos, 500, w)
+        sum_iters += iters
+
+        #print('Los pesos obtenidos son: ' + str(w))
+        #print('Fueron necesarias ' + str(iters) + ' iteraciones para converger.')
+
+#Media de las iteraciones necesarias para converger
+med_iters = sum_iters/10
+
+print('La media de las iteraciones necesarias para converger es: ' + str(med_iters))
+print('Los pesos son: ' + str(w))
 
 #Grafica con los resultados obtenidos
 grafica(datos_unif, im_datos, w, 'PLA con vini = 0', [-50, 50], 10)
 
 #Inicializo con vector aleatorio
-for i in range(0, 10):
-    sum_iters = 0 #Suma de las iteraciones necesarias para converger
-    
+print('\nVector inicial: vector aleatorio')
+
+sum_iters = 0 #Suma de las iteraciones necesarias para converger
+
+for i in range(0, 10):    
     #Inicializo el vector aleatorio
     w = []
     for i in range(0,3):
@@ -248,12 +280,14 @@ for i in range(0, 10):
     w, iters = ajusta_PLA(datos, im_datos, 500, w)
     sum_iters += iters
 
+    #print('Los pesos obtenidos son: ' + str(w))
+    #print('Las iteraciones necesarias para converger son: ' + str(iters))
+
 #Media de las iteraciones necesarias para converger
 med_iters = sum_iters/10
 
-print('\nVector inicial: vector aleatorio')
-print('Los pesos obtenidos en la ultima iteración son: ' + str(w))
-print('La media de las iteraciones necesarias para converger es: ' + str(iters))
+print('La media de las iteraciones necesarias para converger es: ' + str(med_iters))
+print('Los pesos obtenidos en la última ejecución son: ' + str(w))
 
 #Grafica con los resultados obtenidos en la última iteración
 grafica(datos_unif, im_datos, w, 'PLA con vini aleatorio', [-50, 50], 10)
@@ -272,7 +306,7 @@ def sigma(x):
 
 
 # Regresion Logistica usando Gradiente Descendente Estocastico
-def rl_sgd(x, y, lr, max_iters, tam_minibatch):
+def rl_sgd(x, y, lr, max_iters):
 
         #Inicializa el punto inicial a (0,0)
         w = np.array([])
@@ -283,49 +317,30 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
         #Inicializo w_old a un valor con norma mayor que 0.01
         w_old = np.array([1,1,1])
 
-        for l in range(0, max_iters): #Secuencias distintas de minibatch
-            #Paro cuando ||w^t - w^(t-1)||<0.01
-            if np.linalg.norm(w-w_old)>=0.01:
-                #Inicializo los minibatch
-                minibatch = []
+        iters = 0
+        #Paro cuando ||w^t - w^(t-1)||<0.01
+        while np.linalg.norm(w-w_old)>=0.01 and iters < max_iters:
 
+                #Actualizo el w_old
+                w_old = w
+                
                 #Barajo los datos del vector x y las etiquetas en el mismo orden
                 c = list(zip(x, y))
-                random.shuffle(c)
+                np.random.shuffle(c)
                 x, y = zip(*c)
 
-                #Creo el minibatch (cojo los primeros datos del vector x)
-                for i in range(0, tam_minibatch):
-                        minibatch.append(x[i])
-                #print('minibatch: ' + str(minibatch))
-
                 #Algoritmo de Gradiente descendente
-                #Inicializo suma (que represena la sumatoria del algoritmo) a 0
-                suma = np.array([])
-                for i in range(0, len(x[0])):
-                        suma = np.append(suma, 0.0)
+                for i in range(0, len(x)):
+                        #Actualiazción de w según el algoritmo
+                        w = w + lr*y[i]*x[i]*sigma(-np.dot(w, x[i])*y[i])
 
-                suma = np.array(suma, np.float64)
-
-                #Calculo la derivada de Ein, que es una sumatoria
-                for k in range(0,tam_minibatch):
-                        #print(k)
-                        #print("x: " + str(x[k]))
-                        #print('valores: ' + str(y[k]*minibatch[k]*sigma(-np.dot(w, minibatch[k])*y[k])))
-                        suma = suma - y[k]*minibatch[k]*sigma(-np.dot(w, minibatch[k])*y[k])
-
-                #Actualiazción de w según el algoritmo
-                w_old = w
-                w = w - lr*suma
-                #print('suma: ' + str(suma))
-                #print('w_old: '+str(w_old))
-                #print('w: ' + str(w))
-                
-            else:
-                 break   
+                #print('Epoca:' + str(iters) + ' w: ' + str(w))
+                #print('Sigma: ' + str(-np.dot(w, x[i])*y[i]))
+                #print('Variación: ' + str(lr*y[i]*x[i]*sigma(-np.dot(w, x[i])*y[i])))
                         
-        return w, l
-
+                iters += 1
+                        
+        return w, iters
 
 # Fijamos la semilla
 np.random.seed(4)
@@ -343,11 +358,12 @@ datos = formato_datos(datos_unif)
 y = np.array(im_datos)
 
 #Ejecuto la Rl con SGD
-w, iters = rl_sgd(datos, y, 0.01, 100, 32)
+w, iters = rl_sgd(datos, y, 0.01, 1000)
 print('Los pesos obtenidos son: ' + str(w))
 print('Fueron necesarias ' + str(iters) + ' iteraciones.')
 
-grafica(datos_unif, im_datos, w, 'Regresion logistica', [0, 2], 0.5)
+print('La gráfica con el resultado obtenido es:')
+grafica(datos_unif, im_datos, w, 'Regresion logistica con datos training', [0, 2], 0.5)
 
 #b)-----------------------------------------------------------------
 
@@ -359,7 +375,7 @@ print('Los pesos obtenidos son: w = ' + str(w))
 #Creo la muestra de datos test
 datos_test = simula_unif(1000, 2, [0, 2])
 datos_test, im_test = asigno_etiquetas(datos_test, a, b)
-datos_test = formato_datos(datos_test)
+datos_testf = formato_datos(datos_test)
 
 def Error(x, y, w):
         suma = 0
@@ -368,6 +384,9 @@ def Error(x, y, w):
         return suma/len(x)
 
 e_in = Error(datos, im_datos, w)
-e_out = Error(datos_test, im_test, w)
+e_out = Error(datos_testf, im_test, w)
 print('El error Ein es : ' + str(e_in))
 print('El error Eout es : ' + str(e_out))
+
+print('La gráfica con el resultado obtenido con los datos test es:')
+grafica(datos_test, im_test, w, 'Regresion logistica con datos test', [0, 2], 0.5)

@@ -34,7 +34,7 @@
 
 \begin{document}
 
-\title{Trabajo 1: Programación}
+\title{Trabajo 2: Programación}
 \author{Patricia Córdoba Hidalgo}
 \date{}
 \maketitle
@@ -117,7 +117,9 @@ Ejecutamos el \textit{Algoritmo del PLA} con la muestra del apartado  2 usando e
   \subfigure[Vector inicial aleatorio]{\includegraphics[width=83mm]{imgs/PLA_sin_ruido_alea}}
 \end{figure}
 
-Usando como vector inicial el vector cero, el algoritmo converge en 444 iteraciones, obteniendo los pesos $w = [ -2129 \hspace{3mm} 44.85508745 \hspace{3mm} 17.01070298 ]$. Usando 10 vectores iniciales aleatorios, la media es de 17 iteraciones, y en la última iteración los pesos obtenidos son $w = [ -412.45365318 \hspace{3mm} 8.60651887 \hspace{3mm} 3.90172468]$. Como podemos observar, en mi caso el punto inicial influye bastante en el número de iteraciones.\\
+Usando como vector inicial el vector cero, obtenemos el mismo resultado en todas las ejecuciones, ya que el algoritmo no varía al no variar los datos de entrada, es determinista. El algoritmo converge en 444 iteraciones, obteniendo los pesos $w = [ -2129 \hspace{3mm} 44.85508745 \hspace{3mm} 17.01070298 ]$.
+
+Usando 10 vectores iniciales aleatorios, la media es de 285.3 iteraciones, y en la última iteración los pesos obtenidos son $w = [ -412.45365318 \hspace{3mm} 8.60651887 \hspace{3mm} 3.90172468]$. Usando diferentes puntos iniciales, el número de iteraciones necesario para converger varía necesitando desde 17 iteraciones a 500 (o más) para converger.\\
 
 Ejecutando el \textit{Algoritmo del PLA} con la muestra del apartado  2 usando etiquetas con ruido obtenemos las siguientes gráficas:
 
@@ -140,9 +142,16 @@ Se implementó el algoritmo de \textit{Regresión Logística} en la función \te
   \subfigure[Regresión Logística]{\includegraphics[width=83mm]{imgs/rl}}
 \end{figure}
 
-La función obtenida con el algoritmo es $g(x)= \frac{e^{w^Tx}}{1+e^{w^Tx}}$, donde $w = [0.6206406 \hspace{3mm} -0.94098291 \hspace{3mm} 2.57813861]$.
+La función obtenida con el algoritmo es $g(x)= \frac{e^{w^Tx}}{1+e^{w^Tx}}$, donde $w = [0.85572891 \hspace{3mm} -3.1520009 \hspace{3mm} 7.38337662]$.
 
-El error  $E_{in} = 0.20481405394280924$. Se creó otra muestra de 1000 datos uniformemente distribuidos en el cuadrado con la función \texttt{simula\_unif} cuyo error es $E_{out} = 0.22651876695632325$. Como podemos ver el error $E_{out}$ difiere poco del error $E_{in}$, luego el ajuste es bueno.
+El error  $E_{in} = 0.0922856433393283$. Se creó otra muestra de 1000 datos uniformemente distribuidos en el cuadrado con la función \texttt{simula\_unif} cuyo error es $E_{out} = 0.0996398065527377$. Como podemos ver el error $E_{out}$ difiere poco del error $E_{in}$, luego el ajuste es bueno.
+
+El resultado obtenido con el conjunto de datos test es:
+
+\begin{figure}[H]
+  \centering
+  \subfigure[Regresión Logística]{\includegraphics[width=83mm]{imgs/rl_test}}
+\end{figure}
 
 \section{BONUS}
 
