@@ -105,6 +105,8 @@ En nuestro caso específico, podemos ver que las funciones más complejas elegid
 
 \section{MODELOS LINEALES}
 
+Este ejercicio está implementado en el fichero \texttt{ejercicio2.py}.\\
+
 \subsection{Algoritmo Perceptron}
 
 Programé la función \texttt{ajusta\_PLA} para calcular el hiperplano solución al problema de clasificación. En mi caso, la entrada \textit{datos} es una matriz donde cada fila es un item de la forma $x = [1 \hspace{3mm} coordenada\hspace{1mm}X \hspace{3mm} coordenada\hspace{1mm}Y]$, ya que meter las etiquetas en la matriz era redundante e innecesario al tener el vector de etiquetas \textit{label}.\\
@@ -142,9 +144,9 @@ Se implementó el algoritmo de \textit{Regresión Logística} en la función \te
   \subfigure[Regresión Logística]{\includegraphics[width=83mm]{imgs/rl}}
 \end{figure}
 
-La función obtenida con el algoritmo es $g(x)= \frac{e^{w^Tx}}{1+e^{w^Tx}}$, donde $w = [0.85572891 \hspace{3mm} -3.1520009 \hspace{3mm} 7.38337662]$.
+La función obtenida con el algoritmo es $g(x)= \frac{e^{w^Tx}}{1+e^{w^Tx}}$, donde $w = [0.85572891 \hspace{3mm} -3.1520009 \hspace{3mm} 7.38337662]$. El número de iteraciones necesarias para obtener este resultado es 335. El error  $E_{in} = 0.0922856433393283$.\\
 
-El error  $E_{in} = 0.0922856433393283$. Se creó otra muestra de 1000 datos uniformemente distribuidos en el cuadrado con la función \texttt{simula\_unif} cuyo error es $E_{out} = 0.0996398065527377$. Como podemos ver el error $E_{out}$ difiere poco del error $E_{in}$, luego el ajuste es bueno.
+Se creó otra muestra de 1000 datos uniformemente distribuidos en el cuadrado con la función \texttt{simula\_unif} cuyo error es $E_{out} = 0.0996398065527377$. Como podemos ver el error $E_{out}$ difiere poco del error $E_{in}$, luego el ajuste es bueno.
 
 El resultado obtenido con el conjunto de datos test es:
 
@@ -155,10 +157,12 @@ El resultado obtenido con el conjunto de datos test es:
 
 \section{BONUS}
 
+Este ejercicio está implementado en el fichero \texttt{ejercicio3.py}.\\
+
 El problema es clasificar un conjunto de dígitos en dos clases diferentes, los cuatros y los ochos.
 El modelo usado es el siguiente:\\
 Los datos son de la forma $x_i = (1, x1, x2)$, donde $x1$ es la intensidad promedio y $x2$ es la simetría. Las etiquetas correspondientes son $y_i \in \{1, -1\}$. Inicialmente $y_i = 1$ si $x_i = 8$ y $y_i = -1$ si $x_i = 4$.
-Usando el algoritmo de \textit{Regresion Lineal} y \textit{PLA-Pocket} se obtiene $w$, que son los pesos de la función $g$ que separa los datos de los dos conjuntos. Tenemos pues que $g(x1,x2) = w_0 + w_1x1 + w_2x2$, con $w = (w_0, w_1, w_2)$.\\
+Usando el algoritmo de \textit{Regresion Lineal} y \textit{PLA-Pocket} se obtiene $w$, que son los pesos de la función $g$ que separa los datos de los dos conjuntos. Tenemos pues que $g(x,y) = w_0 + w_1x + w_2y$, con $w = (w_0, w_1, w_2)$. Si dado $x_i = (1, x1, x2)$ tenemos que $g(x1, x2) = w_0 + w_1x1 + w_2x2 > 0$, entonces el algoritmo predice una etiqueta es positiva ($y_i = 1$). En caso contrario, predice etiqueta negativa ($y_i = -1$). \\
 
 Con el algoritmo de \textit{Regresion Lineal}, usando la matriz pseudoinversa, se consiguió $w = [-0.50676351 \hspace{3mm} 8.25119739  \hspace{3mm} 0.44464113]$. El resultado obtenido es:
 
@@ -187,11 +191,18 @@ Usando esta recta para clasificar los datos test, el resultado es:
 
 El error $E_{test}$ obtenido es $0.2540983606557377$.\\
 
-Para calcular la cota sobre $E_{out}$ usamos la fórmula:
-$$E_{out}(h) \leq E_{in}(h) + \sqrt{\frac{1}{2N}log(\frac{2}{\delta})} $$
-donde N es el número de datos de la muestra y $\delta$ es la tolerancia, es decir, esta cota se cumple con, al menos, probabilidad $1-\delta$.
+Para calcular la cota sobre $E_{out}$ usamos la desigualdad de Hoeffding:
+$$E_{out}(h) \leq E_{in}(h) + \sqrt{\frac{1}{2N}log(\frac{2|H|}{\delta})} $$
+donde N es el número de datos de la muestra, $|H|$ es el número de funciones en la clase de funciones que escogemos para resolver el problema, en nuestro caso son las rectas, y $\delta$ es la tolerancia, es decir, esta cota se cumple con, al menos, probabilidad $1-\delta$.\\
 
-En nuestro caso, usando $\delta = 0.05$, $N=1194$, tenemos que $E_{out}(h) \leq 0.22529313232830822 + \sqrt{\frac{1}{2*1194}log(\frac{2}{0.05})} = 0.2645965277$, que, efectivamente es mayor que el error $E_{test}$ obtenido.
+Como el conjunto de rectas en $\mathds{R}^2$ es infinito, necesitamos hacer el truco de discretización para poder usarla. Como un ordenador moderno usa $64$ bits para la representación de un escalar, para cada parámetro a determinar solo tenemos $2^{64}$ posibles valores, luego el tamaño de $H$ es $2^{64*2}$, ya que una recta depende de dos parámetros. Como para cada recta podemos etiquetar los puntos de dos formas diferentes (asignar las etiquetas positivas o negativas a un lado o a otro de la recta), el cardinal de $H$ es $2^{64*2+1} = 2^{129} $.
 
+En nuestro caso, usando $\delta = 0.05$, $N=1194$, tenemos que:
+$$E_{out}(h) \leq 0.22529313232830822 + \sqrt{\frac{1}{2*1194}log(\frac{2*2^{129}}{0.05})} = 0.422748538 $$
+
+Para calcular la cota en función del $E_{test}$ usamos la misma fórmula, teniendo en cuenta que ahora $N=366$ y que la función que usamos está determinada, luego $|H| = 1$.
+$$E_{out}(h) \leq 0.2540983606557377 + \sqrt{\frac{1}{2*366}log(\frac{2}{0.05})} = 0.3250874641$$
+
+La cota con $E_{test}$ es mejor, ya que la clase funciones la compone una sola función, no infinitas.
 
 \end{document}

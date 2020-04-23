@@ -164,5 +164,3 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 print('El error Ein es: ' + str(Err(x,y,w_train)))
 print('El error Eout es: ' + str(Err(x_test,y_test,w_train)))
-
-input("\n--- Pulsar tecla para continuar ---\n")
