@@ -195,14 +195,14 @@ Para calcular la cota sobre $E_{out}$ usamos la desigualdad de Hoeffding:
 $$E_{out}(h) \leq E_{in}(h) + \sqrt{\frac{1}{2N}log(\frac{2|H|}{\delta})} $$
 donde N es el número de datos de la muestra, $|H|$ es el número de funciones en la clase de funciones que escogemos para resolver el problema, en nuestro caso son las rectas, y $\delta$ es la tolerancia, es decir, esta cota se cumple con, al menos, probabilidad $1-\delta$.\\
 
-Como el conjunto de rectas en $\mathds{R}^2$ es infinito, necesitamos hacer el truco de discretización para poder usarla. Como un ordenador moderno usa $64$ bits para la representación de un escalar, para cada parámetro a determinar solo tenemos $2^{64}$ posibles valores, luego el tamaño de $H$ es $2^{64*2}$, ya que una recta depende de dos parámetros. Como para cada recta podemos etiquetar los puntos de dos formas diferentes (asignar las etiquetas positivas o negativas a un lado o a otro de la recta), el cardinal de $H$ es $2^{64*2+1} = 2^{129} $.
+Como el conjunto de rectas en $\mathds{R}^2$ es infinito, necesitamos hacer el truco de discretización para poder usarla. Como un ordenador moderno usa $64$ bits para la representación de un escalar, para cada parámetro a determinar solo tenemos $2^{64}$ posibles valores, luego nosotros tenemos $2^{64*3}$ posibles valores en total, ya que una recta depende de tres parámetros ($w$ tiene 3 componentes). Como para cada recta podemos etiquetar los puntos de dos formas diferentes (asignar las etiquetas positivas o negativas a un lado o a otro de la recta), el cardinal de $H$ es $2^{64*3+1} = 2^{193} $.
 
 En nuestro caso, usando $\delta = 0.05$, $N=1194$, tenemos que:
-$$E_{out}(h) \leq 0.22529313232830822 + \sqrt{\frac{1}{2*1194}log(\frac{2*2^{129}}{0.05})} = 0.422748538 $$
+$$E_{out}(h) \leq 0.22529313232830822 + \sqrt{\frac{1}{2*1194}log(\frac{2*2^{193}}{0.05})} = 0.4652211343 $$
 
 Para calcular la cota en función del $E_{test}$ usamos la misma fórmula, teniendo en cuenta que ahora $N=366$ y que la función que usamos está determinada, luego $|H| = 1$.
 $$E_{out}(h) \leq 0.2540983606557377 + \sqrt{\frac{1}{2*366}log(\frac{2}{0.05})} = 0.3250874641$$
 
-La cota con $E_{test}$ es mejor, ya que la clase funciones la compone una sola función, no infinitas.
+La cota con $E_{test}$ es mejor, ya que la clase funciones la compone una sola función, no ``infinitas''.
 
 \end{document}
