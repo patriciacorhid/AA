@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import math as m
 import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import itertools
 from sklearn.decomposition import PCA
+import sklearn.preprocessing as proc
+
+# Fijamos la semilla
+np.random.seed(1)
 
 #------------------PROCESAMIENTO DE DATOS--------------------------
 
@@ -33,93 +38,93 @@ def formato_datos(x):
                 datos.append([1, x[i][0], x[i][1]])
         return datos
 
-#------------------AJUSTE DEL MODELO--------------------------
+def formato_im(y):
+        #Cambio cada etiqueta i por el vector e_i
+        im_datos = []
 
-#Error clasificacion
+        for i in range(0, len(y)):
+                aux = [0 for i in range(0, 9)] #Vector auxiliar con 9 ceros
+                aux = np.array(aux)
+                aux = np.insert(aux, int(y[i]), 1) #Inserto un 1 en la posición correspondiente
+                #print(aux)
+                #print(y_train[i])
+                        
+                im_datos.append(aux) #Añado el vector a la lista de etiquetas
+        y = np.array(im_datos)
+        #print(y)
+        return y
+
+#------------------AJUSTE DEL MODELO--------------------------
+#Función sigmoide
+def sigma(x):
+    return 1/(np.exp(-x)+1)
+
+#Error clasificacion multietiqueta
 def Err(x,y,w):
         error = 0
+        
         for i in range(0, len(x)):
                 #Calculo el error total como el numero de elementos mal clasificados
-                if np.sign(np.dot(w, x[i])) != y[i]:
-                        error = error + 1
-
+                for j in range(0, len(w)):
+                        error = error - y[i][j]*m.log(sigma(np.dot(w[j],x[i])))
         return error/len(x)
 
-#Algoritmo PLA
-def ajusta_PLA(datos, label, max_iter, vini):
-    w = vini #Vector con pesos del hiperplano
-    iters = 0 #Iteraciones necesarias para converger
-    sin_cambios = 0 #Veces en las que no se cambio el w
+# Regresion Logistica usando Gradiente Descendente Estocastico
+def rl_sgd(x, y, lr, max_iters, tam_minibatch):
 
-    while sin_cambios < len(datos) and iters < max_iter:
-        #Para cada dato de la muestra
-        for i in range(0, len(datos)):
-            #Si clasifico mal, modifico el w
-            if np.sign(np.dot(w,datos[i])) != label[i]:
-                w = w + label[i]*datos[i]
-                sin_cambios = 0 #He hecho cambios en w
-                #Si clasifico bien, guardo que no hago cambios en w
-            else:
-                sin_cambios = sin_cambios + 1
+        w_list = [] #lista con todos los w de la RL
+        #Hay que hacer RL binaria 10 veces.
+        for k in range(0,10):
+                                                   
+                #Inicializa el punto inicial a (0,0)
+                w = [0 for i in range(0, len(x[0]))]
+                w = np.array(w, np.float64)
 
-        #Aumento el numero de iteraciones
-        iters = iters +1
+                iters = 0
+                #Paro cuando ||w^t - w^(t-1)||<0.01
+                while iters < max_iters:
+                
+                        #Elijo índices para formar el minibatch
+                        m = np.random.randint(0, len(x), size=tam_minibatch)
+                        
+                        #Creo el minibatch
+                        minibatch_x = []
+                        minibatch_y = []
+                        for i in range(0, tam_minibatch):
+                                minibatch_x.append(x[m[i]])
+                                minibatch_y.append(y[m[i]])
 
-    return w
+                        #Algoritmo de Gradiente descendente
+                        for i in range(0, tam_minibatch):
 
-#Algoritmo PLA pocket
-def PLA_pocket(datos, label, max_iter, vini):
-        w = vini #w optimo
-        w_new = vini #w que consigo en las iteraciones
-        Ein = Err(datos, label, w) #Error w optimo
-        
-        for i in range(0, max_iter):
-                #Ejecuto PLA para conseguir otro w
-                w_new = ajusta_PLA(datos, label, 1, w_new)
-                #Calculo el error del nuevo w
-                Ein_new = Err(datos, label, w_new)
-                #Si su error es menor, actualizo w
-                if Ein_new < Ein:
-                        w = w_new
-                        Ein = Ein_new
-        return w
+                                #Actualiazción de w según el algoritmo
+                                suma = np.array([0 for i in range(0, len(x[0]))])
+                                for n in range(0, tam_minibatch):
+                                        #print((sigma(np.dot(w,x[n])) - y[n][k])*x[n])
+                                        aux = np.array((sigma(np.dot(w,minibatch_x[n])) - minibatch_y[n][k])*minibatch_x[n])
+                                        suma = suma + aux
+
+                                w = w - lr*suma
+                        
+                        iters += 1
+
+                w_list.append(w)
+                print(iters)
+                        
+        return w_list
 
 #------------------SELECCION DEL MODELO--------------------------
-#Los datos que usaremos serán [1, intensidad promedio, simetría]
-def grado1(x):
+#Intruduce características al modelo para ajuste polinómico
+#n: grado del polinomio, x: datos
+def modelo(x, n):
+        if n < 4:
+                poly = proc.PolynomialFeatures(n)
+                x = poly.fit_transform(x)
+        else:
+                #Si n es muy grande, solo multiplica unas características con otras, no tiene términos cuadráticos
+                poly = proc.PolynomialFeatures(degree=n, interaction_only = True)
+                x = poly.fit_transform(x)
         return x
-
-def grado2(x):
-        datos = [] #Datos finales
-        for i in range(0, len(x)):
-                a = x[i][1]
-                b = x[i][2]
-                datos.append([1, a, b, a*b, a**2, b**2])
-        return datos
-
-def grado3(x):
-        datos = [] #Datos finales
-        for i in range(0, len(x)):
-                a = x[i][1]
-                b = x[i][2]
-                datos.append([1, a, b, a*b, a**2, b**2, a**3, b**3, a**2*b, a*b**2])
-        return datos
-
-def grado4(x):
-        datos = [] #Datos finales
-        for i in range(0, len(x)):
-                a = x[i][1]
-                b = x[i][2]
-                datos.append([1, a, b, a*b, a**2, b**2, a**3, b**3, a**2*b, a*b**2, a**4, b**4])
-        return datos
-
-def grado5(x):
-        datos = [] #Datos finales
-        for i in range(0, len(x)):
-                a = x[i][1]
-                b = x[i][2]
-                datos.append([1, a, b, a*b, a**2, b**2, a**3, b**3, a**2*b, a*b**2, a**4, b**4, a**5, b**5])
-        return datos
 
 #------------------VALIDACIÓN--------------------------
 
@@ -145,8 +150,16 @@ def validacion_cruzada(x, y):
 
 #------------------REGULARIZACIÓN--------------------------
 
+
+
 #------------------GRAFICAS--------------------------
 def grafica(datos, im_datos, titulo):
+
+        #Aplico PCA para quedarme solo con dos componentes
+        pca = PCA(n_components = 2, random_state=1)
+        pca.fit(datos)
+        datos = pca.transform(datos)
+        
         pos0_x = [] #Coordenada X de los datos con etiqueta 0
         pos0_y = [] #Coordenada Y de los datos con etiqueta 0
         pos1_x = [] #Coordenada X de los datos con etiqueta 1
@@ -172,44 +185,44 @@ def grafica(datos, im_datos, titulo):
         for i in range(len(datos)):
                 if im_datos[i] == 0:
                         #Vector de datos con etiquetas 0
-                        pos0_x.append(datos[i][1])
-                        pos0_y.append(datos[i][2])
+                        pos0_x.append(datos[i][0])
+                        pos0_y.append(datos[i][1])
                 elif im_datos[i] == 1:
                         #Vector de datos con etiquetas 1
-                        pos1_x.append(datos[i][1])
-                        pos1_y.append(datos[i][2])
+                        pos1_x.append(datos[i][0])
+                        pos1_y.append(datos[i][1])
                 elif im_datos[i] == 2:
                         #Vector de datos con etiquetas 2
-                        pos2_x.append(datos[i][1])
-                        pos2_y.append(datos[i][2])
+                        pos2_x.append(datos[i][0])
+                        pos2_y.append(datos[i][1])
                 elif im_datos[i] == 3:
                         #Vector de datos con etiquetas 3
-                        pos3_x.append(datos[i][1])
-                        pos3_y.append(datos[i][2])
+                        pos3_x.append(datos[i][0])
+                        pos3_y.append(datos[i][1])
                 elif im_datos[i] == 4:
                         #Vector de datos con etiquetas 4
-                        pos4_x.append(datos[i][1])
-                        pos4_y.append(datos[i][2])
+                        pos4_x.append(datos[i][0])
+                        pos4_y.append(datos[i][1])
                 elif im_datos[i] == 5:
                         #Vector de datos con etiquetas 5
-                        pos5_x.append(datos[i][1])
-                        pos5_y.append(datos[i][2])
+                        pos5_x.append(datos[i][0])
+                        pos5_y.append(datos[i][1])
                 elif im_datos[i] == 6:
                         #Vector de datos con etiquetas 6
-                        pos6_x.append(datos[i][1])
-                        pos6_y.append(datos[i][2])
+                        pos6_x.append(datos[i][0])
+                        pos6_y.append(datos[i][1])
                 elif im_datos[i] == 7:
                         #Vector de datos con etiquetas 7
-                        pos7_x.append(datos[i][1])
-                        pos7_y.append(datos[i][2])
+                        pos7_x.append(datos[i][0])
+                        pos7_y.append(datos[i][1])
                 elif im_datos[i] == 8:
                         #Vector de datos con etiquetas 8
-                        pos8_x.append(datos[i][1])
-                        pos8_y.append(datos[i][2])
+                        pos8_x.append(datos[i][0])
+                        pos8_y.append(datos[i][1])
                 else:
                         #Vector de datos con etiquetas 9
-                        pos9_x.append(datos[i][1])
-                        pos9_y.append(datos[i][2])
+                        pos9_x.append(datos[i][0])
+                        pos9_y.append(datos[i][1])
         
         #Representamos los datos
         plt.scatter(pos0_x, pos0_y, c='r', label = '0')
@@ -253,16 +266,102 @@ y_validation = y_train[-l:]
 #Preprocesado de datos con PCA
 
 #Conjunto training
-pca = PCA(n_components = 2)
+#Se queda con las características que explican el 99% de la distribución.
+pca = PCA(n_components = 0.99, random_state=1) 
 pca.fit(x_train)
 x_train = pca.transform(x_train)
+#Escala los datos
+scaler = proc.StandardScaler().fit(x_train)
+x_train = scaler.transform(x_train)
 
-x_train = formato_datos(x_train)
-grafica(x_train, y_train, "Dígitos")
-
-#Conjunto validación
-pca.fit(x_validation)
+#Le aplico la misma transformación al conjunto de validación
 x_validation = pca.transform(x_validation)
+x_validation = scaler.transform(x_validation)
 
-x_validation = formato_datos(x_validation)
-grafica(x_validation, y_validation, "Dígitos")
+#Le aplico la misma transformación al conjunto test
+x_test = pca.transform(x_test)
+x_test = scaler.transform(x_test)
+
+#Graficas
+#grafica(x_train, y_train, "Dígitos")
+#grafica(x_validation, y_validation, "Dígitos")
+
+#Ajusto el formato de las etiquetas a vectores [0..0 1 0..0]
+y_train_v = formato_im(y_train)
+y_val_v = formato_im(y_validation)
+y_test_v = formato_im(y_test)
+
+#Calculo w por medio de la regresión logística
+w = rl_sgd(x_train, y_train_v, 0.005, 50, 32)
+
+#Error de los 3 conjuntos diferentes
+e_tra = Err(x_train,y_train_v, w)
+e_val = Err(x_validation, y_val_v, w)
+e_test = Err(x_test, y_test_v, w)
+
+print("El error del conjunto de entrenamiento es: " + str(e_tra))
+print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
+
+def pruebecilla(x,y,w):
+
+        i = np.random.randint(0, len(x))
+        elem = x[i]
+
+        print("La etiqueta es: " + str(y[i]))
+
+        suma = 0
+        for i in range(0, len(w)):
+                suma += m.exp(np.dot(w[i], elem))
+
+        p = []
+
+        for i in range(0, len(w)):
+                p.append(m.exp(np.dot(w[i], elem))/suma)
+
+        p = np.array(p)
+
+        et = np.argmax(p)
+        prob = np.amax(p)
+
+        print("La etiqueta que predice es: " + str(et))
+        print("Con probabilidad: " + str(prob))
+
+def accuracy(x,y,w):
+
+        accuracy = 0
+        for i in range(0, len(x)):
+
+                #print("La etiqueta es: " + str(y[i]))
+
+                #Calculo el denominador de P(Cj|x) de SOFTMAX
+                suma = 0
+                for k in range(0, len(w)):
+                        suma += m.exp(np.dot(w[k], x[i]))
+
+                #Añado en una lista las probabilidades de que el
+                #elemento de x pertenezca a cada clase
+                p = []
+                for k in range(0, len(w)):
+                        p.append(m.exp(np.dot(w[k], x[i]))/suma)
+
+                p = np.array(p)
+
+                #Su etiqueta es la clase con mayor probabilidad de pertenencia
+                et = np.argmax(p)
+
+                #Calculo el total de elementos acertados
+                if int(et) == int(y[i]):
+                        accuracy += 1
+                        
+                #prob = np.amax(p)
+                #print("La etiqueta que predice es: " + str(et))
+                #print("Con probabilidad: " + str(prob))
+
+        return accuracy/len(x)
+
+#Prueba de lo que devuelve
+for i in range(0,5):
+       pruebecilla(x_train,y_train,w)
+
+print("La precisión es de: " + str(accuracy(x_train,y_train,w)))
