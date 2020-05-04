@@ -244,11 +244,12 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
         datos_val = []
         im_datos_val = []
         for i in range(0,n):
-                print(i*l)
-                print((i+1)*l-1)
-                aux_x = np.delete(x, [i*l, (i+1)*l-1], 0)
-                aux_y = np.delete(x, [i*l, (i+1)*l-1], 0)
-                print("Aux_x: " + str(len(aux_x)))
+                #print("Indice inicial:" + str(i*l))
+                #print("Indice final:" + str((i+1)*l-1))
+                aux_x = np.concatenate((x[:i*l], x[(i+1)*l:]), axis=0)
+                aux_y = np.concatenate((y[:i*l], y[(i+1)*l:]), axis=0)
+                #print("Aux_x: " + str(len(aux_x)))
+                #print("Aux_x: " + str(aux_x.shape))
                 datos.append(aux_x) #Valores de entrenamiento
                 im_datos.append(aux_y)
                 datos_val.append(x[i*l:(i+1)*l]) #Valores de validación
@@ -256,15 +257,22 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
 
         datos = np.array(datos)
         im_datos = np.array(im_datos)
+        datos_val = np.array(datos_val)
+        im_datos_val = np.array(im_datos_val)
+        
+        #print("Shape datos: " + str(datos.shape))
+        #print("Shape im_datos: " + str(im_datos.shape))
+        #print("Shape datos val: " + str(datos_val.shape))
+        #print("Shape im_datos val: " + str(im_datos_val.shape))
 
-        print(len(x))
-        print(n)
-        print(l)
+        #print("Longitud de x:" + str(len(x)))
+        #print("Número de conjuntos:" + str(n))
+        #print("Tamaño de los conjuntos:" + str(l))
 
         #Ajusto el modelo
         for i in range(0,n):
-                print("Datos: " + str(len(datos[i])))
-                print(len(im_datos[i]))
+                #print("Datos: " + str(len(datos[i])))
+                #print(len(im_datos[i]))
                 w = rl_sgd(datos[i], im_datos[i], lr, max_iters, tam_minibatch)
                 e_val = Err(datos_val[i],im_datos_val[i],w) #Calculo el error con los datos de validación
                 e_cv += e_val #Error acumulado
@@ -501,11 +509,11 @@ print("La precisión es de: " + str(accuracy(x_validation,y_validation,w)))
 '''
 
 #CALCULO AJUSTE CON MODELO ELEGIDO
-#w = rl_sgd(x, y_v, 0.005, 100, 32)
-#e = Err(x,y_v, w)
-#print("El error del conjunto de entrenamiento es: " + str(e))
-#print("La precisión es de: " + str(accuracy(x,y,w)))
+w = rl_sgd(x, y_v, 0.005, 100, 32)
+e = Err(x_test, y_test_v, w)
+print("El error del conjunto de test es: " + str(e))
+print("La precisión es de: " + str(accuracy(x_test,y_test,w)))
 
-e_cv = validacion_cruzada(x, y_v, 2, 0.005, 100, 32)
+e_cv = validacion_cruzada(x, y_v, 5, 0.005, 100, 32)
 print("El error de validación cruzada es: " + str(e_cv))
 
