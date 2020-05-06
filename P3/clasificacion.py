@@ -109,12 +109,12 @@ def rl_sgd(x, y, lr, max_iters, tam_minibatch):
                         iters += 1
 
                 w_list.append(w)
-                print(iters)
+                #print(iters)
                         
         return w_list
 
 def softmax(x,y,w):
-
+        #np.random.seed(1)
         i = np.random.randint(0, len(x))
         elem = x[i]
 
@@ -182,7 +182,7 @@ def Err_reg(x,y,w):
                 #Calculo el error total como el numero de elementos mal clasificados
                 for j in range(0, len(w)):
                         error = error - y[i][j]*m.log(sigma(np.dot(w[j],x[i])))
-        return error/len(x) + np.linalg.norm(w)**2
+        return (error + np.linalg.norm(w)**2)/len(x)
 
 
 # Regresion Logistica con regularización
@@ -225,7 +225,7 @@ def rl_reg(x, y, lr, max_iters, tam_minibatch, landa):
                         iters += 1
 
                 w_list.append(w)
-                print(iters)
+                #print(iters)
                         
         return w_list
 
@@ -259,15 +259,17 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
         im_datos = np.array(im_datos)
         datos_val = np.array(datos_val)
         im_datos_val = np.array(im_datos_val)
-        
-        #print("Shape datos: " + str(datos.shape))
-        #print("Shape im_datos: " + str(im_datos.shape))
-        #print("Shape datos val: " + str(datos_val.shape))
-        #print("Shape im_datos val: " + str(im_datos_val.shape))
 
-        #print("Longitud de x:" + str(len(x)))
-        #print("Número de conjuntos:" + str(n))
-        #print("Tamaño de los conjuntos:" + str(l))
+        '''
+        print("Shape datos: " + str(datos.shape))
+        print("Shape im_datos: " + str(im_datos.shape))
+        print("Shape datos val: " + str(datos_val.shape))
+        print("Shape im_datos val: " + str(im_datos_val.shape))
+
+        print("Longitud de x:" + str(len(x)))
+        print("Número de conjuntos:" + str(n))
+        print("Tamaño de los conjuntos:" + str(l))
+        '''
 
         #Ajusto el modelo
         for i in range(0,n):
@@ -278,100 +280,6 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
                 e_cv += e_val #Error acumulado
 
         return e_cv/n
-
-#------------------GRAFICAS--------------------------
-def grafica(datos, im_datos, titulo):
-
-        #Aplico PCA para quedarme solo con dos componentes
-        pca = PCA(n_components = 2, random_state=1)
-        pca.fit(datos)
-        datos = pca.transform(datos)
-        
-        pos0_x = [] #Coordenada X de los datos con etiqueta 0
-        pos0_y = [] #Coordenada Y de los datos con etiqueta 0
-        pos1_x = [] #Coordenada X de los datos con etiqueta 1
-        pos1_y = [] #Coordenada Y de los datos con etiqueta 1
-        pos2_x = [] #Coordenada X de los datos con etiqueta 2
-        pos2_y = [] #Coordenada Y de los datos con etiqueta 2
-        pos3_x = [] #Coordenada X de los datos con etiqueta 3
-        pos3_y = [] #Coordenada Y de los datos con etiqueta 3
-        pos4_x = [] #Coordenada X de los datos con etiqueta 4
-        pos4_y = [] #Coordenada Y de los datos con etiqueta 4
-        pos5_x = [] #Coordenada X de los datos con etiqueta 5
-        pos5_y = [] #Coordenada Y de los datos con etiqueta 5
-        pos6_x = [] #Coordenada X de los datos con etiqueta 6
-        pos6_y = [] #Coordenada Y de los datos con etiqueta 6
-        pos7_x = [] #Coordenada X de los datos con etiqueta 7
-        pos7_y = [] #Coordenada Y de los datos con etiqueta 7
-        pos8_x = [] #Coordenada X de los datos con etiqueta 8
-        pos8_y = [] #Coordenada Y de los datos con etiqueta 8
-        pos9_x = [] #Coordenada X de los datos con etiqueta 9
-        pos9_y = [] #Coordenada Y de los datos con etiqueta 9
-
-        #Relleno los vectores de coordenadas
-        for i in range(len(datos)):
-                if im_datos[i] == 0:
-                        #Vector de datos con etiquetas 0
-                        pos0_x.append(datos[i][0])
-                        pos0_y.append(datos[i][1])
-                elif im_datos[i] == 1:
-                        #Vector de datos con etiquetas 1
-                        pos1_x.append(datos[i][0])
-                        pos1_y.append(datos[i][1])
-                elif im_datos[i] == 2:
-                        #Vector de datos con etiquetas 2
-                        pos2_x.append(datos[i][0])
-                        pos2_y.append(datos[i][1])
-                elif im_datos[i] == 3:
-                        #Vector de datos con etiquetas 3
-                        pos3_x.append(datos[i][0])
-                        pos3_y.append(datos[i][1])
-                elif im_datos[i] == 4:
-                        #Vector de datos con etiquetas 4
-                        pos4_x.append(datos[i][0])
-                        pos4_y.append(datos[i][1])
-                elif im_datos[i] == 5:
-                        #Vector de datos con etiquetas 5
-                        pos5_x.append(datos[i][0])
-                        pos5_y.append(datos[i][1])
-                elif im_datos[i] == 6:
-                        #Vector de datos con etiquetas 6
-                        pos6_x.append(datos[i][0])
-                        pos6_y.append(datos[i][1])
-                elif im_datos[i] == 7:
-                        #Vector de datos con etiquetas 7
-                        pos7_x.append(datos[i][0])
-                        pos7_y.append(datos[i][1])
-                elif im_datos[i] == 8:
-                        #Vector de datos con etiquetas 8
-                        pos8_x.append(datos[i][0])
-                        pos8_y.append(datos[i][1])
-                else:
-                        #Vector de datos con etiquetas 9
-                        pos9_x.append(datos[i][0])
-                        pos9_y.append(datos[i][1])
-        
-        #Representamos los datos
-        plt.scatter(pos0_x, pos0_y, c='r', label = '0')
-        plt.scatter(pos1_x, pos1_y, c='darkgreen', label = '1')
-        plt.scatter(pos2_x, pos2_y, c='navy', label = '2')
-        plt.scatter(pos3_x, pos3_y, c='c', label = '3')
-        plt.scatter(pos4_x, pos4_y, c='deeppink', label = '4')
-        plt.scatter(pos5_x, pos5_y, c='gold', label = '5')
-        plt.scatter(pos6_x, pos6_y, c='teal', label = '6')
-        plt.scatter(pos7_x, pos7_y, c='lime', label = '7')
-        plt.scatter(pos8_x, pos8_y, c='purple', label = '8')
-        plt.scatter(pos9_x, pos9_y, c='coral', label = '9')
-        
-        #Añado el título 
-        plt.title(titulo)
-        #Añado la leyenda
-        plt.legend(loc=2)
-        #Ponemos nombre a los ejes
-        plt.xlabel('Coordenada x')
-        plt.ylabel('Coordenada y')
-        #Pintamos la gráfica
-        plt.show()
 
 #------------------PRACTICA 3--------------------------
 
@@ -410,21 +318,11 @@ x_validation = scaler.transform(x_validation)
 x_test = pca.transform(x_test)
 x_test = scaler.transform(x_test)
 
-#Le aplico la misma transformación al archivo de train (para validar despés)
-x = pca.transform(x)
-x = scaler.transform(x)
-
-#Graficas
-#grafica(x_train, y_train, "Dígitos")
-#grafica(x_validation, y_validation, "Dígitos")
-
 #Ajusto el formato de las etiquetas a vectores [0..0 1 0..0]
 y_train_v = formato_im(y_train)
 y_val_v = formato_im(y_validation)
 y_test_v = formato_im(y_test)
-y_v = formato_im(y)
 
-'''
 #Calculo w por medio de la regresión logística
 w = rl_sgd(x_train, y_train_v, 0.005, 100, 32)
 
@@ -433,14 +331,31 @@ e_tra = Err(x_train,y_train_v, w)
 e_val = Err(x_validation, y_val_v, w)
 e_test = Err(x_test, y_test_v, w)
 
+print("\n CARACTERÍSTICAS LINEALES \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
 print("El error del conjunto test es: " + str(e_test))
 
 
-print("La precisión es de: " + str(accuracy(x_train,y_train,w)))
-print("La precisión es de: " + str(accuracy(x_validation,y_validation,w)))
-'''
+print("La precisión del conjunto de entrenamiento es: " + str(accuracy(x_train,y_train,w)))
+print("La precisión del conjunto de validación es: " + str(accuracy(x_validation,y_validation,w)))
+
+#MODELO LINEAL REGULARIZADO 
+#Calculo w por medio de la regresión logística
+w = rl_reg(x_train, y_train_v, 0.005, 100, 32, 0.0001)
+
+#Error de los 3 conjuntos diferentes
+e_tra = Err_reg(x_train,y_train_v, w)
+e_val = Err_reg(x_validation, y_val_v, w)
+e_test = Err_reg(x_test, y_test_v, w)
+
+print("\n CARACTERÍSTICAS LINEALES CON REGULARIZACIÓN \n")
+print("El error del conjunto de entrenamiento es: " + str(e_tra))
+print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
+
+print("La precisión del conjunto de entrenamiento es: " + str(accuracy(x_train,y_train,w)))
+print("La precisión del conjunto de validación es: " + str(accuracy(x_validation,y_validation,w)))
 
 #CARACTERÍSTICAS CUADRÁTICAS:
 
@@ -449,7 +364,6 @@ poly = proc.PolynomialFeatures(2)
 x_train = poly.fit_transform(x_train)
 x_validation = poly.transform(x_validation)
 x_test = poly.transform(x_test)
-x = poly.transform(x)
 
 #Preprocesado de datos con PCA
 #Conjunto training
@@ -469,11 +383,6 @@ x_validation = scaler.transform(x_validation)
 x_test = pca.transform(x_test)
 x_test = scaler.transform(x_test)
 
-#Le aplico la misma transformación al archivo de train (para validar despés)
-x = pca.transform(x)
-x = scaler.transform(x)
-
-'''
 #Calculo w por medio de la regresión logística
 w = rl_sgd(x_train, y_train_v, 0.005, 100, 32)
 
@@ -482,16 +391,15 @@ e_tra = Err(x_train,y_train_v, w)
 e_val = Err(x_validation, y_val_v, w)
 e_test = Err(x_test, y_test_v, w)
 
+print("\n CARACTERÍSTICAS CUADRÁTICAS \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
 print("El error del conjunto test es: " + str(e_test))
 
-print("La precisión es de: " + str(accuracy(x_train,y_train,w)))
-print("La precisión es de: " + str(accuracy(x_validation,y_validation,w)))
-'''
+print("La precisión del conjunto de entrenamiento es: " + str(accuracy(x_train,y_train,w)))
+print("La precisión del conjunto de validación es: " + str(accuracy(x_validation,y_validation,w)))
 
 #MODELO CUADRÁTICO REGULARIZADO 
-'''
 #Calculo w por medio de la regresión logística
 w = rl_reg(x_train, y_train_v, 0.005, 100, 32, 0.0001)
 
@@ -500,20 +408,30 @@ e_tra = Err_reg(x_train,y_train_v, w)
 e_val = Err_reg(x_validation, y_val_v, w)
 e_test = Err_reg(x_test, y_test_v, w)
 
+print("\n CARACTERÍSTICAS CUADRÁTICAS CON REGULARIZACIÓN \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
 print("El error del conjunto test es: " + str(e_test))
 
-print("La precisión es de: " + str(accuracy(x_train,y_train,w)))
-print("La precisión es de: " + str(accuracy(x_validation,y_validation,w)))
-'''
+print("La precisión del conjunto de entrenamiento es: " + str(accuracy(x_train,y_train,w)))
+print("La precisión del conjunto de validación es: " + str(accuracy(x_validation,y_validation,w)))
 
 #CALCULO AJUSTE CON MODELO ELEGIDO
+
+x = np.concatenate((x_train, x_validation), axis=0)
+y_v = np.concatenate((y_train_v, y_val_v), axis=0)
+
 w = rl_sgd(x, y_v, 0.005, 100, 32)
 e = Err(x_test, y_test_v, w)
+print("\n MODELO ELEGIDO \n")
 print("El error del conjunto de test es: " + str(e))
-print("La precisión es de: " + str(accuracy(x_test,y_test,w)))
+print("La precisión del conjunto test es: " + str(accuracy(x_test,y_test,w)))
 
-e_cv = validacion_cruzada(x, y_v, 5, 0.005, 100, 32)
-print("El error de validación cruzada es: " + str(e_cv))
+#e_cv = validacion_cruzada(x, y_v, 5, 0.005, 100, 32)
+#print("El error de validación cruzada es: " + str(e_cv))
 
+print("\n EJEMPLO: \n")
+
+for i in range(0, 3):
+        softmax(x, y, w)
+        print("*******")
