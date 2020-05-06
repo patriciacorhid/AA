@@ -232,17 +232,19 @@ def rl_reg(x, y, lr, max_iters, tam_minibatch, landa):
 
 #------------------VALIDACIÓN--------------------------
 
-def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
+def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch, y_e):
         e_cv = 0
+        acc = 0
 
         #Hago validación cruzada con n conjuntos diferentes 
         l = len(x)
         l = int(l/n)
 
-        datos = []
-        im_datos = []
-        datos_val = []
-        im_datos_val = []
+        datos = []               #Vector de datos para training de cada iteración
+        im_datos = []            #Vector de etiquetas para training de cada iteración
+        datos_val = []           #Vector de datos para validación de cada iteración
+        im_datos_val = []        #Vector de etiquetas para validación de cada iteración
+        im_datos_val_e = []      #Vector de etiquetas (formato dígito) para validación de cada iteración
         for i in range(0,n):
                 #print("Indice inicial:" + str(i*l))
                 #print("Indice final:" + str((i+1)*l-1))
@@ -254,11 +256,13 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
                 im_datos.append(aux_y)
                 datos_val.append(x[i*l:(i+1)*l]) #Valores de validación
                 im_datos_val.append(y[i*l:(i+1)*l])
+                im_datos_val_e.append(y_e[i*l:(i+1)*l])
 
         datos = np.array(datos)
         im_datos = np.array(im_datos)
         datos_val = np.array(datos_val)
         im_datos_val = np.array(im_datos_val)
+        im_datos_val_e = np.array(im_datos_val_e)
 
         '''
         print("Shape datos: " + str(datos.shape))
@@ -275,11 +279,12 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch):
         for i in range(0,n):
                 #print("Datos: " + str(len(datos[i])))
                 #print(len(im_datos[i]))
-                w = rl_sgd(datos[i], im_datos[i], lr, max_iters, tam_minibatch)
-                e_val = Err(datos_val[i],im_datos_val[i],w) #Calculo el error con los datos de validación
+                w = rl_reg(datos[i], im_datos[i], lr, max_iters, tam_minibatch, 0.0001)
+                e_val = Err_reg(datos_val[i],im_datos_val[i],w) #Calculo el error con los datos de validación
                 e_cv += e_val #Error acumulado
+                acc += accuracy(datos_val[i], im_datos_val_e[i],w) #Accuracy acumulada 
 
-        return e_cv/n
+        return e_cv/n, acc/n
 
 #------------------PRACTICA 3--------------------------
 
@@ -421,17 +426,19 @@ print("La precisión del conjunto de validación es: " + str(accuracy(x_validati
 x = np.concatenate((x_train, x_validation), axis=0)
 y_v = np.concatenate((y_train_v, y_val_v), axis=0)
 
-w = rl_sgd(x, y_v, 0.005, 100, 32)
-e = Err(x_test, y_test_v, w)
 print("\n MODELO ELEGIDO \n")
-print("El error del conjunto de test es: " + str(e))
+w = rl_reg(x, y_v, 0.005, 100, 32, 0.0001)
+e = Err_reg(x,y_v,w)
+print("El error del conjunto test es: " + str(e))
 print("La precisión del conjunto test es: " + str(accuracy(x_test,y_test,w)))
 
-#e_cv = validacion_cruzada(x, y_v, 5, 0.005, 100, 32)
-#print("El error de validación cruzada es: " + str(e_cv))
+e_cv, acc = validacion_cruzada(x, y_v, 5, 0.005, 100, 32, y)
+print("El error de validación cruzada es: " + str(e_cv))
+print("La precisión de validación cruzada es: " + str(acc))
 
 print("\n EJEMPLO: \n")
 
+np.random.seed(1)
 for i in range(0, 3):
         softmax(x, y, w)
         print("*******")

@@ -43,6 +43,8 @@
 
 \section{Problema de clasificación}
 
+Se implementó en el archivo \texttt{clasificacion.py}.\\
+
 Este problema consiste en clasificar imágenes de dígitos escritos a mano, asignándole a cada una el dígito que representan. Nuestro espacio de características, $\chi$, está formado por datos de 64 características, cada una de ellas representando la intensidad de trazado de una de las casillas de una matriz $8 \times 8$, donde se ha trazado el dígito. El conjunto de etiquetas, $Y$, son los dígitos del $0$ al $9$. La función desconocida $f$ es aquella que a cada imagen (elemento de $\chi$) le asigna el dígito que representa (su etiqueta correspondiente).\\
 
 Primero leemos los ficheros de datos con la función \texttt{readData}, que separa los datos de sus etiquetas. Los datos del fichero test serán los datos que usaremos para calcular el $E_{out}$ y los del fichero training los dividimos en datos de entrenamiento y datos de validación. Un $25\%$ de los datos del fichero de datos training serán usados para validar. En un problema de aprendizaje corriente lo ideal sería mezclar los datos de ambos ficheros, ya que normalmente nos dan una base de datos y no tenemos un conjunto test, y dividir de ahí los conjuntos de entrenamiento, validación y test. En este caso, esto no es plausible, ya que los datos son números dibujados por personas y si mezclamos los ficheros existe la posibilidad de que haya dígitos trazados por la misma persona tanto en el conjunto training como en el test. Si esto ocurriese, como el algoritmo se entrenó para adaptarse a la caligrafía de ese individuo, la estimación del error fuera de la muestra que nos porporciona el conjunto test no sería realista. Por esto, en este caso, no mezclamos los ficheros, dejamos que el fichero test se use como conjunto test.\\
@@ -54,7 +56,8 @@ Estas transformaciones se ajustan a los datos de entrenamiento (con la función 
 
 Para clasificar los datos, usaremos regresión logística multietiqueta. Por el teorema de ``No-Free-Lunch'' todos los algoritmos son iguales en media, no hay un algoritmo mejor que otro, hay problemas donde unos tienen mejor desempeño que otros y elegí usar este algoritmo inicialmente porque ya lo hemos trabajado en otras prácticas, es sencillo y hemos visto como usarlo en caso de clasificación multietiqueta. Los resultados obtenidos fueron buenos, por lo que concluí que era un algoritmo con buen desempeño en éste problema.\\
 
-La implementación del algoritmo de \textit{Regresión Logistica} está en la función \texttt{rl\_sgd}. La función \texttt{rl\_sgd} devuelve una lista de 10 vectores, cada uno de ellos calculado en una de las iteraciones del bucle principal (usando gradiente descendente estocástico y el error visto en teoría), que corresponde a los pesos de la función que separa esa clase del resto.\\
+La implementación del algoritmo de \textit{Regresión Logistica} está en la función \texttt{rl\_sgd}. La función \texttt{rl\_sgd} devuelve una lista de 10 vectores, cada uno de ellos calculado en una de las iteraciones del bucle principal (usando gradiente descendente estocástico y el error visto en teoría), que corresponde a los pesos de la función que separa esa clase del resto. Los hiperparámetros usados son:
+$\eta = 0.005$, se hacen $100$ iteraciones y el tamaño de minibatch usado es $32$. Probando con diferentes valores para $\eta$, éste fue el que mejor resultado produjo en conjunto en todos los modelos usados, así que es el que se dejó al final. El número de iteraciones y el tamaño de minibatch se ajustaron según un criterio de calidad-tiempo, ya que con muchas más iteraciones, el tiempo que tarda el programa en ejecutarse es demasiado, y con esta proporción se obtenían resultados aceptables.\\
 Antes de ejecutar esta función, es necesario ajustar el formato de las etiquetas, pasando de tener dígitos a tener vectores de 10 coordenadas. A la etiqueta que representa el dígito $i$ se le asocia el vector $e_i$, aquel que tiene ceros en todas sus componentes menos en la posición $i$, que tiene un $1$. La etiqueta $0$ pasa a ser $[1 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0]$, la etiqueta $1$ pasa a ser $[0 \hspace{0.7mm} 1 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0]$, y así sucesivamente, hasta la etiqueta $9$  que pasa a ser $[0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 0 \hspace{0.7mm} 1]$.\\
 
 El error que minimizamos usando el algoritmo de \textit{Regresión Logistica} es la pérdida logarítmica, que nos permite penalizar mucho cuando la estimación es errónea y que el error sea muy cercano a cero cuando la estimación es buena. Sin embargo, la métrica que usaremos para elegir el mejor modelo será la precisión (accuracy), que es el porcentaje de etiquetas que acierta nuestro modelo. Usaré esta métrica para ver realmente cuál es el desempeño del modelo y cómo de bien clasifica las etiquetas.\\
@@ -80,7 +83,7 @@ El modelo con características cuadráticas consigue una mayor precisión que el
 Nosotros, que poseemos un conjunto de test, podemos ver que realmente el modelo con características cuadráticas se ajusta mejor a los datos de fuera de la muestra, pero esta información no debería impulsarnos a tomar nunguna decisión ya que, en teoría, esta información no la poseemos.\\
                     **********************************************\\
 
-Para comprobar que no hemos sobreajustado el modelo a los datos y para limitar la varianza de la clase, que influye en el error $E_{out}$, es muy importante hacer siempre regularización. En mi caso, para regularizar usé la función \texttt{rl\_reg} que usa el algoritmo de \textit{Regresión Logistica} minimizando ahora el error $E_{aug} = E_{in} + \lambda ||w||^2$, que es equivalente a imponer la restricción de que $||w||^2$ no supere cierta constante, y así acotamos la variabilidad de la clase. En el algoritmo, como calculamos cada uno de los 10 vectores de peso por separado, $w$ sí es un vector, pero en el cálculo del error de regularización, con \texttt{Err\_reg}, $w$ es una matriz (contiene a los 10 vectores), luego lo que usamos es la norma de Frobenius, que es equivalente a la norma $2$ por filas.
+Para comprobar que no hemos sobreajustado el modelo a los datos y para limitar la varianza de la clase, que influye en el error $E_{out}$, es muy importante hacer siempre regularización. En mi caso, para regularizar usé la función \texttt{rl\_reg} que usa el algoritmo de \textit{Regresión Logistica} minimizando ahora el error $E_{aug} = E_{in} + \lambda ||w||^2$, que es equivalente a imponer la restricción de que $||w||^2$ no supere cierta constante, y así acotamos la variabilidad de la clase. En el algoritmo, como calculamos cada uno de los 10 vectores de peso por separado, $w$ sí es un vector, pero en el cálculo del error de regularización, con \texttt{Err\_reg}, $w$ es una matriz (contiene a los 10 vectores), luego lo que usamos es la norma de Frobenius, que es equivalente a la norma $2$ por filas. Se tomó $\lambda = 0.0001$, ya que fue el valor de lambda que mejores resultados obtuvo entre los probados (mayor precisión). Este valor de $\lambda$ es el que se usará siempre qe se haga regularización (para comparar modelos, con el modelo final y para la validación cruzada).\\
 
 Los resultados obtenidos con la regularización son:
 
@@ -97,34 +100,17 @@ Los resultados obtenidos con la regularización son:
 \end{tabular}
 \end{center}
 
-Como podemos ob
+Como podemos observar, el error tanto dentro como fuera de la muestra aumenta, ya que ahora el error que usamos penaliza también el tamaños del $w$ resultante. Por esto nos basamos en la precisión para ver la bondad del modelo, ya que el porcentaje de datos que clasifica correctamente no depende del tamaño de los pesos elegidos, solo depende del buen desempeño del modelo. En este caso, el modelo con características lineales empeora con los datos de validación. Esto se debe a que el modelo en sí ya era bastante sencillo y no se estaba produciendo sobreajuste, así que al restringir la clase, no pudimos conseguir el mejor clasificador de ésta. En el modelo con características cuadráticas, la precisión sí que aumenta en el conjunto de validación, por lo que ahora el modelo se ajusta mejor a los datos que no son de entrenamiento.\\
 
+Como el modelo con mejor precisión es aquel con características cuadráticas regularizadas, esta es la clase que usaremos, nuestro ``mejor modelo''. Ahora, calculamos el $w$ que se ajuste a todos los datos del fichero training. Este será el modelo definitvo, aquel que propondríamos como solución del problema de aprendizaje. Una vez calculado, calculamos la precisión del modelo con el conjunto test.\\
 
+En la función de validación cruzada no sólo se devuelve el error medio de validación, sino que también se devuelve la precisión media del modelo. En teoría sabemos que, en media, el error de validación cruzada es una cota pesimista del error $E_{out}$, luego podemos usar ese error para acotarlo. De hecho, como podemos ver, el error $E_{out} = 0.1530888485750021 < 0.6634750029595697 = E_{cv}$. Sin embargo, la precisión del modelo por validación cruzada no es una cota pesimista de la precisión fuera de la muestra. Esto se debe a que los datos del conjunto training están escritos por las mismas personas y los del conjunto test por otras diferentes. Por eso, el modelo se ajusta mejor a los datos de validación que a los datos de test, ya que se ha entrenado con esa caligrafía, y proporciona mejores resultados con los datos de validación que con los de test. Lo que quiero decir con esto es que, aunque el error de regularización sí sea realmente mayor que el otro, este error depende de los pesos de los w que va calculando en gran medida, y si estos son más grandes puede dispararse, pero la bondad del modelo no depende tanto de estos pesos, y la bondad del modelo usando validación cruzada NO es una cota pesimista de la bondad del modelo fuera del conjunto por el razonamiento anterior.\\
 
+Si una empresa me encargara el problema, el modelo que le daría sería el de características cuadráticas regularizado, porque según la métrica de error que he utilizado, la precisión, es aquel que mejor comportamiento tiene. La cota que les daría sería que el modelo, en el peor de los casos, tiene una precisión del $86.806\%$. Esto sabemos que es falso por el problema de sobreajuste provocado por la caligrafía de la misma persona en los datos de entrenamiento y validación, y sabemos que en nuestro conjunto test tenemos una precisión del $83.361\%$, que es menor a la cota dada, pero como en un problema real no contamos con esta información, lo mejor que le podemos decir a nuestro jefe es eso.\\
 
+Al final del ejecutable, se muestra, a modo de ejemplo, el funcionamiento del modelo usando SOFTMAX. SOFTMAX crea un vector donde en cada casilla escribe la probabilidad de que el dato $x$ pertenezca a esa clase. En nuestro caso, en la casilla $i$ está la probabilidad de que el dato $x$ sea el dígito $i$ (si empezamos a contar las casillas por $0$). Al dato se le asigna la etiqueta con mayor probabilidad de ocurrencia. Saqué por pantalla la etiqueta real, la etiqueta que se predice y la probabilidad de ésta. En este ejemplo, siempre acierta la etiqueta (Pero podría no acertar alguna, ya que la precisión no es del $100\%$).
 
-
- MODELO ELEGIDO 
-
-El error del conjunto de test es: 0.10848095502383011
-La precisión del conjunto test es: 0.8336115748469671
-
- EJEMPLO: 
-
-La etiqueta es: 0.0
-La etiqueta que predice es: 0
-Con probabilidad: 0.999999996657045
-*******
-La etiqueta es: 4.0
-La etiqueta que predice es: 4
-Con probabilidad: 0.9999261321009139
-*******
-La etiqueta es: 2.0
-La etiqueta que predice es: 2
-Con probabilidad: 0.9999999852647863
-*******
-
-
-
+\newpage
+\section{Problema de regresión}
 
 \end{document}
