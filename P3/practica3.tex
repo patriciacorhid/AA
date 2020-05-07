@@ -69,11 +69,11 @@ Los resultados obtenidos son:
 \hline
 \multicolumn{1}{|c|}{}& \textbf{CARACTERÍSTICAS LINEALES} &
 \textbf{CARACTERÍSTICAS CUADRÁTICAS}  \\ \hline
-  Error del conjunto training       & 0.06822748834535933 & 0.005245633985463137 \\
-  Error conjunto de validación      & 0.08416293421735029 & 0.03036210074385761 \\
-  Error del conjunto test           & 0.07509996756431692 & 0.06367515319684557 \\
-  Precisión del conjunto training   & 0.7900976290097629  & 0.939679218967922 \\
-  Precisión conjunto de validación  & 0.7979057591623037  & 0.8680628272251308 \\ \hline
+  Error del conjunto training       & 0.23515871536552188 & 0.04682725465198909 \\
+  Error conjunto de validación      & 0.3144886201093401  & 0.1374816964128216 \\
+  Error del conjunto test           & 0.32641955137068873 & 0.17682268491873723 \\
+  Precisión del conjunto training   & 0.9518828451882845  & 0.9923291492329149 \\
+  Precisión conjunto de validación  & 0.9455497382198953  & 0.9675392670157068 \\ \hline
 \end{tabular}
 \end{center}
 
@@ -92,25 +92,38 @@ Los resultados obtenidos con la regularización son:
 \hline
 \multicolumn{1}{|c|}{}& \textbf{CARACTERÍSTICAS LINEALES} &
 \textbf{CARACTERÍSTICAS CUADRÁTICAS}  \\ \hline
-  Error del conjunto training       & 0.11641129755974719 & 0.17732784788169068 \\
-  Error conjunto de validación      & 0.2385966274134429  & 0.5587784527220588 \\
-  Error del conjunto test           & 0.16734674140002598 & 0.3341999985046917 \\
-  Precisión del conjunto training   & 0.8009065550906556  & 0.944560669456067 \\
-  Precisión conjunto de validación  & 0.7853403141361257  & 0.8869109947643979 \\ \hline
+  Error del conjunto training       & 0.41895422496760854 & 0.1850746588024572 \\
+  Error conjunto de validación      & 0.8872315082160108  & 0.5702993911481589 \\
+  Error del conjunto test           & 0.6811653754239967  & 0.4339443597913593 \\
+  Precisión del conjunto training   & 0.9616457461645747  & 0.9905857740585774 \\
+  Precisión conjunto de validación  & 0.9539267015706806  & 0.9581151832460733 \\ \hline
 \end{tabular}
 \end{center}
 
-Como podemos observar, el error tanto dentro como fuera de la muestra aumenta, ya que ahora el error que usamos penaliza también el tamaños del $w$ resultante. Por esto nos basamos en la precisión para ver la bondad del modelo, ya que el porcentaje de datos que clasifica correctamente no depende del tamaño de los pesos elegidos, solo depende del buen desempeño del modelo. En este caso, el modelo con características lineales empeora con los datos de validación. Esto se debe a que el modelo en sí ya era bastante sencillo y no se estaba produciendo sobreajuste, así que al restringir la clase, no pudimos conseguir el mejor clasificador de ésta. En el modelo con características cuadráticas, la precisión sí que aumenta en el conjunto de validación, por lo que ahora el modelo se ajusta mejor a los datos que no son de entrenamiento.\\
+Como podemos observar, el error tanto dentro como fuera de la muestra aumenta, ya que ahora el error que usamos penaliza también el tamaños del $w$ resultante. Por esto nos basamos en la precisión para ver la bondad del modelo, ya que el porcentaje de datos que clasifica correctamente no depende del tamaño de los pesos elegidos, solo depende del buen desempeño del modelo. En este caso, el modelo con características lineales mejora con los datos de validación. Hemos conseguido que, dismunuyendo la varianza, se obtenga un modelo que se ajuste mejor a los datos de validación. En el modelo con características cuadráticas, la precisión empeora en el conjunto de validación, ya que al añadir las restricciones, las funciones que ahora consideramos tienen mayor sesgo y no compensa con el descenso de varianza producido.\\
 
-Como el modelo con mejor precisión es aquel con características cuadráticas regularizadas, esta es la clase que usaremos, nuestro ``mejor modelo''. Ahora, calculamos el $w$ que se ajuste a todos los datos del fichero training. Este será el modelo definitvo, aquel que propondríamos como solución del problema de aprendizaje. Una vez calculado, calculamos la precisión del modelo con el conjunto test.\\
+Como el modelo con mayor precisión en el conjunto de validación es aquel con características cuadráticas, ésta es la clase que usaremos, nuestro ``mejor modelo''. Ahora, calculamos el $w$ que se ajuste a todos los datos del fichero training. Este será el modelo definitvo, aquel que propondríamos como solución del problema de aprendizaje. Una vez calculado, calculamos la precisión del modelo con el conjunto test.\\
 
-En la función de validación cruzada no sólo se devuelve el error medio de validación, sino que también se devuelve la precisión media del modelo. En teoría sabemos que, en media, el error de validación cruzada es una cota pesimista del error $E_{out}$, luego podemos usar ese error para acotarlo. De hecho, como podemos ver, el error $E_{out} = 0.1530888485750021 < 0.6634750029595697 = E_{cv}$. Sin embargo, la precisión del modelo por validación cruzada no es una cota pesimista de la precisión fuera de la muestra. Esto se debe a que los datos del conjunto training están escritos por las mismas personas y los del conjunto test por otras diferentes. Por eso, el modelo se ajusta mejor a los datos de validación que a los datos de test, ya que se ha entrenado con esa caligrafía, y proporciona mejores resultados con los datos de validación que con los de test. Lo que quiero decir con esto es que, aunque el error de regularización sí sea realmente mayor que el otro, este error depende de los pesos de los w que va calculando en gran medida, y si estos son más grandes puede dispararse, pero la bondad del modelo no depende tanto de estos pesos, y la bondad del modelo usando validación cruzada NO es una cota pesimista de la bondad del modelo fuera del conjunto por el razonamiento anterior.\\
+En la función de validación cruzada se devuelve la precisión media del modelo. En teoría sabemos que, en media, el error de validación cruzada es una cota pesimista del error $E_{out}$, luego podemos usar ese error para acotarlo. En nuestro caso, deberíamos obtener una cota pesimista de la mínima precisión que tendría nuestro modelo. Sin embargo, la precisión del modelo por validación cruzada no es una cota pesimista de la precisión fuera de la muestra. Esto se debe a que los datos del conjunto training están escritos por las mismas personas y los del conjunto test por otras diferentes. Por eso, el modelo se ajusta mejor a los datos de validación que a los datos de test, ya que se ha entrenado con esa caligrafía, y proporciona mejores resultados con los datos de validación que con los de test.\\
 
-Si una empresa me encargara el problema, el modelo que le daría sería el de características cuadráticas regularizado, porque según la métrica de error que he utilizado, la precisión, es aquel que mejor comportamiento tiene. La cota que les daría sería que el modelo, en el peor de los casos, tiene una precisión del $86.806\%$. Esto sabemos que es falso por el problema de sobreajuste provocado por la caligrafía de la misma persona en los datos de entrenamiento y validación, y sabemos que en nuestro conjunto test tenemos una precisión del $83.361\%$, que es menor a la cota dada, pero como en un problema real no contamos con esta información, lo mejor que le podemos decir a nuestro jefe es eso.\\
+Si una empresa me encargara el problema, el modelo que le daría sería el de características cuadráticas, porque según la métrica de error que he utilizado, la precisión, es aquel que mejor comportamiento tiene. La cota que les daría sería que el modelo, en el peor de los casos, tiene una precisión del $93.796\%$. Esto sabemos que es falso por el problema de sobreajuste provocado por la caligrafía de la misma persona en los datos de entrenamiento y validación, y sabemos que en nuestro conjunto test tenemos una precisión del $92.988\%$, que es menor a la cota dada, pero como en un problema real no contamos con esta información, lo mejor que le podemos decir a nuestro jefe es eso.\\
 
 Al final del ejecutable, se muestra, a modo de ejemplo, el funcionamiento del modelo usando SOFTMAX. SOFTMAX crea un vector donde en cada casilla escribe la probabilidad de que el dato $x$ pertenezca a esa clase. En nuestro caso, en la casilla $i$ está la probabilidad de que el dato $x$ sea el dígito $i$ (si empezamos a contar las casillas por $0$). Al dato se le asigna la etiqueta con mayor probabilidad de ocurrencia. Saqué por pantalla la etiqueta real, la etiqueta que se predice y la probabilidad de ésta. En este ejemplo, siempre acierta la etiqueta (Pero podría no acertar alguna, ya que la precisión no es del $100\%$).
 
 \newpage
 \section{Problema de regresión}
 
+Se implementó en el archivo \texttt{regresion.py}.\\
+
+Este problema consiste en predicir el número de crímenes violentos en una comunidad de USA por cada 100000 habitates a partir de datos socio-económicos de la comunidad. Nuestro espacio de características, $\chi$, está formado por datos socio-económicos de la comunidad. El conjunto de etiquetas, $Y$, es el número de crímenes violentos en esa comunidad de USA por cada 100000 habitates. La función desconocida $f$ es aquella que a cada comunidad (elemento de $\chi$) le asigna el número de crímenes violentos correspondiente (su etiqueta correspondiente).\\
+
+Las clases de funciones que usaré para resolver el problema son los polinomios de grado uno y dos, como en el problema anterior. Como ya justifiqué anteriormente, estas clases de funciones son relativamente sencillas y no tienen tanta variabilidad como otras clases de funciones, así no habrá tanta tendencia al sobreajuste y el error $E_{out}$ no será tan alto.\\
+
+
+
+TO KNOW PANDAS:
+- LEER FICHERO
+- DROP
+- QUITAR VALORES NULOS
+- QUITAR NO PREDICTIVE (LAS 5 PRMERAS CARACTERISTICAS) 
 \end{document}

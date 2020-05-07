@@ -31,11 +31,13 @@ def readData(file):
                 
         return x, y
 
-#Ajusta el formato del vector de 2 componentes del PCA
+#Ajusta el formato del vector de datos para usar modelo lineal
 def formato_datos(x):
-        datos = [] #Datos finales
-        for i in range(0, len(x)):
-                datos.append([1, x[i][0], x[i][1]])
+        datos = []
+        for i in range(0,len(x)):
+                aux = np.concatenate((np.array([1]), x[i]), axis=0)
+                datos.append(aux)
+        datos = np.array(datos)
         return datos
 
 def formato_im(y):
@@ -279,8 +281,8 @@ def validacion_cruzada(x, y, n, lr, max_iters, tam_minibatch, y_e):
         for i in range(0,n):
                 #print("Datos: " + str(len(datos[i])))
                 #print(len(im_datos[i]))
-                w = rl_reg(datos[i], im_datos[i], lr, max_iters, tam_minibatch, 0.0001)
-                e_val = Err_reg(datos_val[i],im_datos_val[i],w) #Calculo el error con los datos de validación
+                w = rl_sgd(datos[i], im_datos[i], lr, max_iters, tam_minibatch)
+                e_val = Err(datos_val[i],im_datos_val[i],w) #Calculo el error con los datos de validación
                 e_cv += e_val #Error acumulado
                 acc += accuracy(datos_val[i], im_datos_val_e[i],w) #Accuracy acumulada 
 
@@ -322,6 +324,11 @@ x_validation = scaler.transform(x_validation)
 #Le aplico la misma transformación al conjunto test
 x_test = pca.transform(x_test)
 x_test = scaler.transform(x_test)
+
+#Ajusto el formato de los datos
+x_train = formato_datos(x_train)
+x_validation = formato_datos(x_validation)
+x_test = formato_datos(x_test)
 
 #Ajusto el formato de las etiquetas a vectores [0..0 1 0..0]
 y_train_v = formato_im(y_train)
@@ -388,6 +395,11 @@ x_validation = scaler.transform(x_validation)
 x_test = pca.transform(x_test)
 x_test = scaler.transform(x_test)
 
+#Ajusto el formato de los datos
+x_train = formato_datos(x_train)
+x_validation = formato_datos(x_validation)
+x_test = formato_datos(x_test)
+
 #Calculo w por medio de la regresión logística
 w = rl_sgd(x_train, y_train_v, 0.005, 100, 32)
 
@@ -429,11 +441,11 @@ y_v = np.concatenate((y_train_v, y_val_v), axis=0)
 print("\n MODELO ELEGIDO \n")
 w = rl_reg(x, y_v, 0.005, 100, 32, 0.0001)
 e = Err_reg(x,y_v,w)
-print("El error del conjunto test es: " + str(e))
+#print("El error del conjunto test es: " + str(e))
 print("La precisión del conjunto test es: " + str(accuracy(x_test,y_test,w)))
 
 e_cv, acc = validacion_cruzada(x, y_v, 5, 0.005, 100, 32, y)
-print("El error de validación cruzada es: " + str(e_cv))
+#print("El error de validación cruzada es: " + str(e_cv))
 print("La precisión de validación cruzada es: " + str(acc))
 
 print("\n EJEMPLO: \n")
