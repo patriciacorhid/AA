@@ -177,14 +177,14 @@ def accuracy(x,y,w):
 #------------------REGULARIZACIÓN--------------------------
 
 #Error regularización multietiqueta
-def Err_reg(x,y,w):
+def Err_reg(x,y,w, landa):
         error = 0
         
         for i in range(0, len(x)):
                 #Calculo el error total como el numero de elementos mal clasificados
                 for j in range(0, len(w)):
                         error = error - y[i][j]*m.log(sigma(np.dot(w[j],x[i])))
-        return (error + np.linalg.norm(w)**2)/len(x)
+        return (error + landa*np.linalg.norm(w)**2)/len(x)
 
 
 # Regresion Logistica con regularización
@@ -357,9 +357,9 @@ print("La precisión del conjunto de validación es: " + str(accuracy(x_validati
 w = rl_reg(x_train, y_train_v, 0.005, 100, 32, 0.0001)
 
 #Error de los 3 conjuntos diferentes
-e_tra = Err_reg(x_train,y_train_v, w)
-e_val = Err_reg(x_validation, y_val_v, w)
-e_test = Err_reg(x_test, y_test_v, w)
+e_tra = Err_reg(x_train,y_train_v, w, 0.0001)
+e_val = Err_reg(x_validation, y_val_v, w, 0.0001)
+e_test = Err_reg(x_test, y_test_v, w, 0.0001)
 
 print("\n CARACTERÍSTICAS LINEALES CON REGULARIZACIÓN \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
@@ -421,9 +421,9 @@ print("La precisión del conjunto de validación es: " + str(accuracy(x_validati
 w = rl_reg(x_train, y_train_v, 0.005, 100, 32, 0.0001)
 
 #Error de los 3 conjuntos diferentes
-e_tra = Err_reg(x_train,y_train_v, w)
-e_val = Err_reg(x_validation, y_val_v, w)
-e_test = Err_reg(x_test, y_test_v, w)
+e_tra = Err_reg(x_train,y_train_v, w, 0.0001)
+e_val = Err_reg(x_validation, y_val_v, w, 0.0001)
+e_test = Err_reg(x_test, y_test_v, w, 0.0001)
 
 print("\n CARACTERÍSTICAS CUADRÁTICAS CON REGULARIZACIÓN \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
@@ -439,8 +439,8 @@ x = np.concatenate((x_train, x_validation), axis=0)
 y_v = np.concatenate((y_train_v, y_val_v), axis=0)
 
 print("\n MODELO ELEGIDO \n")
-w = rl_reg(x, y_v, 0.005, 100, 32, 0.0001)
-e = Err_reg(x,y_v,w)
+w = rl_sgd(x, y_v, 0.005, 100, 32)
+e = Err(x,y_v,w)
 #print("El error del conjunto test es: " + str(e))
 print("La precisión del conjunto test es: " + str(accuracy(x_test,y_test,w)))
 
