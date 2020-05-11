@@ -170,5 +170,7 @@ Una vez identificaco cual es el modelo a usar, el modelo con características li
 
 Para dar una cota del error fuera de la muestra, usamos la función de \texttt{validacion\_cruzada}. Sabemos que el error de validación cruzada es, en media, una cota pesimista del error $E_{out}$. En nuestro caso obtenemos que $E_{out} = 0.017512795613507298 < 0.01904200368347531 = E_{cv}$. Por tanto, efectivamente obtenemos una cota del error fuerra de la muestra con validación cruzada.\\
 
-Si fuese la encargada de este ajuste para una empresa, les propondría el ....
+Si fuese la encargada de este ajuste para una empresa, les propondría el modelo con características lineales sin regularizar, que consigue un error menor o igual que $0.01904200368347531$. Todas estas decisiones se han tomado en base a los resultados del error del conjunto de validación, que es tan aleatorio como el conjunto de datos test. El conjunto test tiene en general mayor error que el error de validación, y es verdad que el error de este conjunto con el modelo lineal con regularización es menor que sin regularización, así que en caso de haber usado el conjunto test como conjunto de validación, nuestras conclusiones habrían sido diferentes, pero como el modelo con características lineales no tiene sobreajuste apenas por la sencillez del modelo, usar o no regularización no afecta mucho a los resultados.
+
+
 \end{document}
