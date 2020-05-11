@@ -190,26 +190,30 @@ x_test = formato_datos(x_test)
 #Calculo w por medio de la matriz pseudoinversa
 w = pseudoinverse(x_train, y_train)
 
-#Error de los 2 conjuntos diferentes
+#Error de los 3 conjuntos diferentes
 e_tra = Err(x_train, y_train, w)
 e_val = Err(x_val, y_val, w)
+e_test = Err(x_test, y_test, w)
 
 print("\n CARACTERÍSTICAS LINEALES \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
 
 #MODELO LINEAL REGULARIZADO
 
 #Calculo w por medio de la matriz pseudoinversa
 w = pseudoinverse_reg(x_train, y_train, 0.001)
 
-#Error de los 2 conjuntos diferentes
+#Error de los 3 conjuntos diferentes
 e_tra = Err(x_train, y_train, w)
 e_val = Err(x_val, y_val, w)
+e_test = Err(x_test, y_test, w)
 
 print("\n CARACTERÍSTICAS LINEALES CON REGULARIZACIÓN \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
 
 #Guardamos datos con características lineales en variables para usarlos en el futuro
 x_train_l = x_train
@@ -249,13 +253,15 @@ x_test = formato_datos(x_test)
 #Calculo w por medio de la matriz pseudoinversa
 w = pseudoinverse(x_train, y_train)
 
-#Error de los 2 conjuntos diferentes
+#Error de los 3 conjuntos diferentes
 e_tra = Err(x_train, y_train, w)
 e_val = Err(x_val, y_val, w)
+e_test = Err(x_test, y_test, w)
 
 print("\n CARACTERÍSTICAS CUADRÁTICAS \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
 
 #CARACTERÍSTICAS CUADRÁTICAS CON REGULARIZACIÓN
 
@@ -263,13 +269,15 @@ print("El error del conjunto de validación es: " + str(e_val))
 w = pseudoinverse_reg(x_train, y_train, 172)
 #172
 
-#Error de los 2 conjuntos diferentes
+#Error de los 3 conjuntos diferentes
 e_tra = Err(x_train, y_train, w)
 e_val = Err(x_val, y_val, w)
+e_test = Err(x_test, y_test, w)
 
 print("\n CARACTERÍSTICAS LINEALES CON REGULARIZACIÓN \n")
 print("El error del conjunto de entrenamiento es: " + str(e_tra))
 print("El error del conjunto de validación es: " + str(e_val))
+print("El error del conjunto test es: " + str(e_test))
 
 #MODELO ELEGIDO
 print("\n MODELO ELEGIDO \n")

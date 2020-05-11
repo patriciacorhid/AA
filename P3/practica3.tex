@@ -77,11 +77,7 @@ Los resultados obtenidos son:
 \end{tabular}
 \end{center}
 
-El modelo con características cuadráticas consigue una mayor precisión que el modelo con características lineales, es decir, consigue asignar la etiqueta correcta al mayor número de datos. El error dentro de la muestra es considerablemente menor que con características lineales. Esto se debe a que la clase de funciones es más rica y puede ajustarse mejor a los datos, aunque en el proceso puede producirse sobreajuste. Es por esto que la regularización es importante, para evitar que el modelo se ajuste demasiado bien a los datos de entrenamiento y no tan bien a los datos de la distribución.\\
-
-                    **********************************************\\
-Nosotros, que poseemos un conjunto de test, podemos ver que realmente el modelo con características cuadráticas se ajusta mejor a los datos de fuera de la muestra, pero esta información no debería impulsarnos a tomar nunguna decisión ya que, en teoría, esta información no la poseemos.\\
-                    **********************************************\\
+El modelo con características cuadráticas consigue una mayor precisión que el modelo con características lineales, es decir, consigue asignar la etiqueta correcta al mayor número de datos. El error dentro de la muestra es considerablemente menor que con características lineales. Esto se debe a que la clase de funciones es más rica y puede ajustarse mejor a los datos, aunque en el proceso puede producirse sobreajuste. Es por esto que la regularización es importante, para evitar que el modelo se ajuste demasiado bien a los datos de entrenamiento y no tan bien a los datos de la distribución. Nosotros, que poseemos un conjunto de test, podemos ver que realmente el modelo con características cuadráticas se ajusta mejor a los datos de fuera de la muestra, pero esta información no debería impulsarnos a tomar nunguna decisión ya que, en teoría, esta información no la poseemos.\\
 
 Para comprobar que no hemos sobreajustado el modelo a los datos y para limitar la varianza de la clase, que influye en el error $E_{out}$, es muy importante hacer siempre regularización. En mi caso, para regularizar usé la función \texttt{rl\_reg} que usa el algoritmo de \textit{Regresión Logistica} minimizando ahora el error $E_{aug} = E_{in} + \lambda ||w||^2$, que es equivalente a imponer la restricción de que $||w||^2$ no supere cierta constante, y así acotamos la variabilidad de la clase. En el algoritmo, como calculamos cada uno de los 10 vectores de peso por separado, $w$ sí es un vector, pero en el cálculo del error de regularización, con \texttt{Err\_reg}, $w$ es una matriz (contiene a los 10 vectores), luego lo que usamos es la norma de Frobenius, que es equivalente a la norma $2$ por filas. Se tomó $\lambda = 0.0001$, ya que fue el valor de lambda que mejores resultados obtuvo entre los probados (mayor precisión). Este valor de $\lambda$ es el que se usará siempre qe se haga regularización (para comparar modelos, con el modelo final y para la validación cruzada).\\
 
@@ -122,11 +118,57 @@ Primero leemos los ficheros de datos con la función \texttt{readData}. En este 
 Las clases de funciones que usaré para resolver el problema son los polinomios de grado uno y dos, como en el problema anterior. Como ya justifiqué anteriormente, estas clases de funciones son relativamente sencillas y no tienen tanta variabilidad como otras clases de funciones, así no habrá tanta tendencia al sobreajuste y el error $E_{out}$ no será tan alto.\\
 
 Antes de empezar a trabajar los datos, se preprocesan. Como las primeras cinco características no son predicativas, es decir, no aportan ninguna información a nuestro problema, las eliminamos. Tras esto eliminamos también las características que tengan más de un $1\%$ de valores desconocidos en el conjunto de entrenamiento. Así, nos quedamos sólo con características cuyo valor es conocido en la mayoría de los datos y evitamos meter ruido a la muestra intentando aproximar un gran número de valores desconocidos. Estas mismas características las eliminamos también del conjunto test y del de validación.\\
-Una vez que hemos eliminado estas características, si hay datos con el valor de alguna característica desconocida, lo aproximamos. Hacemos esto para no perder información de una característica si solo hay muy pocos datos con ese valor desconocido. El valor que introducimos para sustituir el desconocido es la media de los valores de esa característica en el resto de datos del conjunto correspondiente a ese dato (se hace en los tres conjuntos).\\
+Una vez que hemos eliminado estas características, si hay datos con el valor de alguna característica desconocida, lo aproximamos. Hacemos esto para no perder información de una característica si solo hay muy pocos datos con ese valor desconocido. El valor que introducimos para sustituir el desconocido es la media de los valores de esa característica en el resto de datos del conjunto correspondiente a ese dato (se hace en los tres conjuntos). Todo este preprocesamiento se hizo usando métodos de la clase \texttt{DataFrame}.\\
 
 Una vez que nuestros datos no tienen nungún valor desconocido, preprocesamos los datos con el mismo procedimiento que usamos con el problema de clasificación. Primero usamos PCA para quedarnos sólo con las características que representen el $99\%$ de la distribución y tras esto escalamos los datos. Como justificamos en el problema anterior, esto se hace porque si una característica tiene una varianza varios órdenes mayor que otra, puede tener repercusiones en el cálculo de la función objetivo y puede hacer que no se aprenda correctamente del resto de características.\\
 Estas transformaciones se ajustan a los datos de entrenamiento (con la función \texttt{fit}) y luego se usan las mismas sobre el resto de datos (tanto al conjunto de validación como al de test).\\
+También ajustamos el formato de los datos con la función \texttt{formato\_datos} para que la primera característica de todos ellos sea un $1$. Esto lo hacemos para que el algoritmo nos devuelva los parámetros de un hiperplano afín, y no esté obligado a que sea un hiperplano vectorial.\\
 
-EL algoritmo que usaré para el ajuste de los datos es el algoritmo de \textit{La matriz Pseudoinversa}. Usaré ese porque cuando la matriz no es excesivamente grande, es muy rápido y obtiene buenos resultados en los problemas de regresión.
+El algoritmo que usaré para el ajuste de los datos es el algoritmo de \textit{La matriz Pseudoinversa}. Usaré ese porque cuando la matriz no es excesivamente grande, es muy rápido y obtiene buenos resultados en los problemas de regresión.\\
 
+La métrica de error usada es el error cuadrático medio, que es el error que minimiza el algoritmo de \textit{La matriz Pseudoinversa}. Este error siempre es positivo y sólo es cero cuando el ajuste es perfecto, ya que tiene en cuenta todos los datos y el error que se produce en ellos. Así, esta métrica usa toda la información disponible e intenta ajustarse lo mejor posible al conjunto de los datos, no intenta ajustar muy bien una parte a costa de perjudicar otra. Esta métrica es la más simple y la más común en problemas de regresión.\\
+
+Para calcular el error del modelo implementé dos funciones diferentes: \texttt{Err} y \texttt{Err\_np}. Esto se debe a que las etiquetas están implementadas sobre un \texttt{DataFrame} en la mayor parte del código, pero en la función de \texttt{validacion\_cruzada}, pasan a ser vectores de \texttt{numpy} al usar la función de \texttt{concatenate}. Como el acceso a los datos es diferente en estas estructuras, fue necesario implementar las dos funciones diferentes. Los conjuntos deentrenamiento, validación y test son vectores de \texttt{numpy} desde que se le aplica el algoritmo de \texttt{PCA}.
+
+Los resultados obtenidos son:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{}& \textbf{CARACTERÍSTICAS LINEALES} &
+\textbf{CARACTERÍSTICAS CUADRÁTICAS}  \\ \hline
+  Error del conjunto training       & 0.01706133273347002  & 0.003534236848716267 \\
+  Error conjunto de validación      & 0.018866052767704204 & 0.03636803782422322 \\
+  Error del conjunto test           & 0.02060827214004634  & 0.047212466396276784 \\ \hline
+\end{tabular}
+\end{center}
+
+Como podemos observar, el modelo con características lineales tiene mayor error en la muestra que el modelos con características cuadráticas. Sin embargo, este modelo tiene un mejor comportamiento con el conjunto de validación, difiriendo relativamente poco el error del conjunto training respecto al test, mientras que el modelo con características cuadráticas tiene un error en el conjunto de validación más de diez veces mayor que el error en el conjunto training. Esto se debe a que, al ser una clase más rica en funciones, podemos encontrar una que se ajuste mucho a los datos de la muestra, aunque su desempeño fuera de ésta sea peor. Se está produciendo sobreajuste con el modelo de características cuadráticas. El otro modelo, al ser más sencillo, no tiene a penas sobreajuste.\\
+
+Para combatir con el sobreajuste producido, es necesario usar regularización. Usamos el algoritmo de \textit{La matriz Pseudoinversa} regularizado, esto es, ahora $w$ no es $(X^TX)^{-1}X^Ty$, si no que es $(X^TX + \lambda I)^{-1}X^Ty$. Los errores que mostramos son usando la métrica escogida. No mostramos el error aumentado, que es el que se minimiza con regularización, sino el error cuadrático medio, que es el elegido para comparar los modelos entre sí.
+
+Los resultados obtenidos son:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{}& \textbf{CARACTERÍSTICAS LINEALES} &
+\textbf{CARACTERÍSTICAS CUADRÁTICAS}  \\ \hline
+  Error del conjunto training       & 0.01706133273353623  & 0.005245244929496423 \\
+  Error conjunto de validación      & 0.018866055076277446 & 0.034677097266386805 \\
+  Error del conjunto test           & 0.020608266965906483  & 0.04193181913215595 \\ \hline
+\end{tabular}
+\end{center}
+
+Podemos ver que con el modelo con características lineales la regularización no ofrece una gran mejora, los cambios en el error son mínimos e incluso son un poco mayores que en el caso sin regularización (en el conjunto de entrenamiento y de validación). Es un modelo muy simple que no sobreajusta apenas. El modelo con características cuadráticas sí sobreajustaba y el uso de regularización sí hace que el error en la muestra aumente a cambio de que mejore el error del conjunto de validación. Sin embargo, no mejora lo suficiente para elegir este modelo, ya que el modelo lineal presenta menor error minimo cuadrático en el conjunto de validación.\\
+
+Los hiperparámetros usados para la regularización son $0.001$ con el modelo lineal y $172$ en el modelo cuadrático, ya que son los que mejores resultados tenían por separado en cada modelo. Esto lo hice para demostrar que, ni eligiendo el mejor hiperparámetro posible con el modelo con características cuadráticas obtenemos mejores resultados en el conjunto de validación que con el modelo con características lineales. En el problema anterior intenté ser justa y aplicar a todos los modelos las mismas restricciones, aquí, como parece que el modelo con características cuadráticas sobreajusta mucho, por la gran diferencia entre su error en la muestra y en el conjunto de validación, intenté buscar el mejor parámetro para éste y aun así no conseguí disminuirlo más. Es por eso que dejé este valor intacto, para dejar claro que no tiene mejores resultados que el lineal en este caso.\\
+
+El modelo que tiene menor error cuadrático medio en el conjunto de validación es el modelo con características linaeles sin regularización, por tanto este sería mi ``mejor modelo''.\\
+
+Una vez identificaco cual es el modelo a usar, el modelo con características linaeles sin regularización, fusionamos los datos del conjunto training y el conjunto de validación para obtener el $w$ que propondríamos como solución a nuestro problema de aprendizaje.\\
+
+Para dar una cota del error fuera de la muestra, usamos la función de \texttt{validacion\_cruzada}. Sabemos que el error de validación cruzada es, en media, una cota pesimista del error $E_{out}$. En nuestro caso obtenemos que $E_{out} = 0.017512795613507298 < 0.01904200368347531 = E_{cv}$. Por tanto, efectivamente obtenemos una cota del error fuerra de la muestra con validación cruzada.\\
+
+Si fuese la encargada de este ajuste para una empresa, les propondría el ....
 \end{document}
